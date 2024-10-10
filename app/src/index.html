@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Consultório Virtual Telessaude</title>
+
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel='stylesheet' href='assets/css/app.css' type="text/css">
+
+    <script src='/socket.io/socket.io.js'></script>
+    <script type="module" src='assets/js/rtc.js'></script>
+    <script type="module" src='assets/js/events.js'></script>
+    <!-- Verificar Script abaixo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js"
+        integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4=" crossorigin="anonymous"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js'></script>
+    <script src='https://cdn.rawgit.com/yahoo/xss-filters/master/dist/xss-filters.js'></script>
+    <script src='assets/js/autolink.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+    <!--clipboard button import-->
+</head>
+
+<body>
+    
+      
+    <div class="custom-modal" id='recording-options-modal'>
+        <div class="custom-modal-content">
+            <div class="row text-center">
+                <div class="col-md-6 mb-2">
+                    <span class="record-option" id='record-video'>Gravar Chamada</span>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <span class="record-option" id='record-screen'>Gravar tela</span>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12 text-center">
+                    <button class="btn btn-outline-danger" id='closeModal'>Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ************************ begin navbar ************************-->
+    <nav class="navbar fixed-top bg-dark rounded-0 d-print-none">
+        <span>
+
+            <img class="manImg" src="./assets/img/logo_wide.png" width="100px"></img>
+
+        </span>
+        <div class="text-white">Consultório Virtual</div>
+
+
+        <div class="pull-right room-comm" hidden>
+            <!-- <button class="btn btn-sm rounded-0 btn-no-effect" id='toggle-video' title="Hide Video">
+                <i class="fa fa-video text-white"></i>
+            </button>
+
+            <button class="btn btn-sm rounded-0 btn-no-effect" id='toggle-mute' title="Mute">
+                <i class="fa fa-microphone-alt text-white"></i>
+            </button> -->
+
+
+            <div class="dropdown" id="div-status" hidden>
+                <span id="status-atual" class="status online"></span><span>Status</span>
+                <div class="dropdown-content">
+                    <a class="dropdown-item" href="#"><span id="item_status" class="status online"></span> Disponível</a>
+                    <a class="dropdown-item" href="#"><span id="item_status" class="status idle"></span> Ocupado</a>
+                    <a class="dropdown-item" href="#"><span id="item_status" class="status offline"></span> Em Consulta</a>
+                </div>
+            </div>
+
+
+            <a id="linkDownload" hidden>
+                <button class="btn-download" style="border-radius: 4px;">
+                    <i class="fa fa-download"></i> Chegou um Documento, clique para baixar
+                </button>
+            </a>
+            <button class="d-none btn btn-sm rounded-0 btn-no-effect" id='share-screen' title="Share screen">
+                <i class="fa fa-desktop text-white"></i>
+            </button>
+
+            <button class="d-none btn btn-sm rounded-0 btn-no-effect" id='record' title="Record">
+                <i class="fa fa-dot-circle text-white"></i>
+            </button>
+
+            <button class="d-none btn btn-sm text-white pull-right btn-no-effect" id='toggle-chat-pane'>
+                <i class="fa fa-comment"></i> <span class="badge badge-danger very-small font-weight-lighter"
+                    id='new-chat-notification' hidden>New</span>
+            </button>
+
+            <button class="btn btn-sm rounded-0 btn-no-effect text-white">
+                <a href="/" class="text-white text-decoration-none"><i class="fa fa-sign-out-alt text-white"
+                        title="Sair"></i></a>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- ************************ end navbar ************************ -->
+    
+    <!-- style="background: #222222 url('./assets/img/hexagon.svg') center/10% no-repeat;" -->
+
+    <!-- ************************ Begin frame de criação de sala ************************ -->
+    <div class="container-fluid backLogin" id='room-create' hidden>
+        <div class="row Apr" id="welcome" hidden>
+            <div class="col-12 presentation">
+                <h1>Consultório Virtual</h1>
+                <img class="img-fluid" src="./assets/img/telessaude_social.png">
+                <p id="textDi">Bem vindo ao Consultório Virtual desenvolvido pelo núcleo de Telessaude do Maranhão</p>
+                <button class="btn btn-secondary" onclick="jumpPresentation()" id="jump">Pular Apresentação</button>
+            </div>
+        </div>
+        <script>
+            function jumpPresentation() {
+                document.querySelector('#welcome').setAttribute('hidden', true);
+                document.querySelector('#login').attributes.removeNamedItem('hidden');
+            }
+        </script>
+        <div class="loginPages" id="login" hidden>
+            <div class="row">
+                <div class="col-12 h2 mt-5 text-center">Criar Sala</div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-12 text-center">
+                    <span class="form-text small text-danger" id='err-msg'></span>
+                </div>
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3" hidden>
+                    <label for="room-name">Código da Sala</label>
+                    <input type="text" id='room-name' class="form-control rounded-5" placeholder="Nome da Sala ...">
+                </div>
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3">
+                    <label for="your-name">Seu Nome</label>
+                    <input type="text" id='your-name' class="form-control rounded-5" placeholder="Nome completo ...">
+                </div>
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3">
+                    <label for="your-password">Sua Senha</label>
+                    <input type="password" id='your-password' class="form-control rounded-5">
+                </div>
+
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3">
+                    <button id='create-room' class="btn btn-block rounded-5 btn-success">Criar Sala</button>
+                </div>
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3" id='room-created'></div>
+            </div>
+        </div>
+    </div>
+    <!-- ************************ End frame de criação de sala ************************ -->
+
+    <!-- ************************ Begin icones do menu ************************ -->
+    <div class="active" id="icons" hidden>
+
+        <label class="custom-file-upload">
+            <input id='docAnexo' style="display:none;" type="file" accept="image/*,application/pdf" />
+            <svg id="send_file" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="-10 -10 68 68">
+                <text id="percentSend" x="0" y="33" font-family="arial" font-size="23" fill="white"></text>
+                <circle id="circleSvgFile" cx="24" cy="24" r="34">
+                    <title>Enviar Arquivo</title>
+                </circle>
+                <path id="PaperClip" transform="scale(0.070), translate(100,100)"
+                    d="m226 512c-49.626 0-90-40.374-90-90v-302c0-66.168 53.832-120 120-120s120 53.832 120 120v302h-30v-302c0-49.626-40.374-90-90-90s-90 40.374-90 90v302c0 33.084 26.916 60 60 60s60-26.916 60-60v-242c0-16.542-13.458-30-30-30s-30 13.458-30 30v242h-30v-242c0-33.084 26.916-60 60-60s60 26.916 60 60v242c0 49.626-40.374 90-90 90z"
+                    fill="white" />
+                <path id="CheckIcon" transform=" translate(10,12)" d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" fill="white"/>
+            </svg>
+        </label>
+
+        <svg id="toggle-video" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="-10 -10 68 68"
+            class="off">
+            <circle cx="24" cy="24" r="34">
+                <title>Fechar Camera</title>
+            </circle>
+            <path class="on" transform="scale(0.6), translate(17,16)"
+                d="M40 8H15.64l8 8H28v4.36l1.13 1.13L36 16v12.36l7.97 7.97L44 36V12c0-2.21-1.79-4-4-4zM4.55 2L2 4.55l4.01 4.01C4.81 9.24 4 10.52 4 12v24c0 2.21 1.79 4 4 4h29.45l4 4L44 41.46 4.55 2zM12 16h1.45L28 30.55V32H12V16z"
+                fill="white"></path>
+            <path class="off" transform="scale(0.6), translate(17,16)"
+                d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zm-4 24l-8-6.4V32H12V16h16v6.4l8-6.4v16z"
+                fill="white"></path>
+        </svg>
+
+        <svg id="toggle-mute" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="-10 -10 68 68"
+            class="off">
+            <title>title</title>
+            <circle cx="24" cy="24" r="34">
+                <title>Fechar Microfone</title>
+            </circle>
+            <path class="on" transform="scale(0.6), translate(17,18)"
+                d="M38 22h-3.4c0 1.49-.31 2.87-.87 4.1l2.46 2.46C37.33 26.61 38 24.38 38 22zm-8.03.33c0-.11.03-.22.03-.33V10c0-3.32-2.69-6-6-6s-6 2.68-6 6v.37l11.97 11.96zM8.55 6L6 8.55l12.02 12.02v1.44c0 3.31 2.67 6 5.98 6 .45 0 .88-.06 1.3-.15l3.32 3.32c-1.43.66-3 1.03-4.62 1.03-5.52 0-10.6-4.2-10.6-10.2H10c0 6.83 5.44 12.47 12 13.44V42h4v-6.56c1.81-.27 3.53-.9 5.08-1.81L39.45 42 42 39.46 8.55 6z"
+                fill="white"></path>
+            <path class="off" transform="scale(0.6), translate(17,18)"
+                d="M24 28c3.31 0 5.98-2.69 5.98-6L30 10c0-3.32-2.68-6-6-6-3.31 0-6 2.68-6 6v12c0 3.31 2.69 6 6 6zm10.6-6c0 6-5.07 10.2-10.6 10.2-5.52 0-10.6-4.2-10.6-10.2H10c0 6.83 5.44 12.47 12 13.44V42h4v-6.56c6.56-.97 12-6.61 12-13.44h-3.4z"
+                fill="white"></path>
+        </svg>
+
+        <a href="/">
+            <svg id="hangup" class="" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="-10 -10 68 68">
+                <circle cx="24" cy="24" r="34">
+                    <title>Sair da Consulta</title>
+
+                </circle>
+                <path transform="scale(0.7), translate(11,10)"
+                    d="M24 18c-3.21 0-6.3.5-9.2 1.44v6.21c0 .79-.46 1.47-1.12 1.8-1.95.98-3.74 2.23-5.33 3.7-.36.35-.85.57-1.4.57-.55 0-1.05-.22-1.41-.59L.59 26.18c-.37-.37-.59-.87-.59-1.42 0-.55.22-1.05.59-1.42C6.68 17.55 14.93 14 24 14s17.32 3.55 23.41 9.34c.37.36.59.87.59 1.42 0 .55-.22 1.05-.59 1.41l-4.95 4.95c-.36.36-.86.59-1.41.59-.54 0-1.04-.22-1.4-.57-1.59-1.47-3.38-2.72-5.33-3.7-.66-.33-1.12-1.01-1.12-1.8v-6.21C30.3 18.5 27.21 18 24 18z"
+                    fill="red"></path>
+            </svg>
+        </a>
+
+    </div>
+    <!-- ************************ End icones do menu ************************ -->
+
+    <!-- ************************ Begin entrar em uma sala ************************ -->
+    <div class="container-fluid backLogin" id='username-set' hidden >
+        <div class="loginPages">
+            <div class="row">
+                <div class="col-12 h2 mt-5 text-center">Entrar na Sala</div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-12 text-center">
+                    <span class="form-text small text-danger" id='err-msg-username'></span>
+                </div>
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3">
+                    <label for="username">Seu Nome</label>
+                    <input type="text" id='username' class="form-control rounded-5" placeholder="Nome Completo ...">
+                </div>
+
+                <div class="col-12 col-md-4 offset-md-4 mb-3">
+                    <button id='enter-room' class="btn btn-block rounded-5 btn-info">Entrar na Sala</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ************************ End entrar em uma sala ************************ -->
+
+    <!-- ************************ Begin frame de videochamada ************************ -->
+    <div class="container-fluid room-comm" hidden>
+        <!-- begin video local-->
+        <video class="local-video mirror-mode" id='local' volume='0' autoplay muted></video>
+        <!-- end video local-->
+
+        <div class="row">
+
+            <!-- begin big video-->
+            <div class="col-12 main" id='main-section'>
+                 <!-- begin room infs-->
+                 <div class="row">
+                     <div id="myProgress" hidden>
+                <div id="myBar"></div>
+              </div>
+                    <div class="col-lg-4 col-xs-12 aviso" id="aviso" hidden>
+                        <button onclick="closeovelay()" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div class="usertext">
+                            <p>Para incluir seu paciente nessa sala basta clicar no botão a seguir e o enviar as
+                                informações da sala.
+                            </p>
+                            <button class="clip btn btn-dark" id="clip" data-clipboard-text="" onclick="copy()">
+                                Clique aqui para copiar as informações da sala.
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    function closeovelay() {
+                        document.querySelector('#aviso').setAttribute('hidden', true);
+                    }
+                    var clipboard = new ClipboardJS('.clip');
+                    document.querySelector('#clip').setAttribute('data-clipboard-text', 'Para entrar em sua consulta basta clicar no link a seguir: ' + window.location.href);
+
+                </script>
+                <!-- end room infs-->
+                <div class="row mt-0 mb-0 justify-content-center" id='videos'></div>
+            </div>
+            <!-- end big video-->
+
+            <div class="col-md-3 chat-col d-print-none mb-2 bg-info" id='chat-pane' hidden>
+                <div class="row">
+                    <div class="col-12 text-center h2 mb-3">CHAT</div>
+                </div>
+
+                <div id='chat-messages'></div>
+
+                <div class="row">
+                    <textarea id='chat-input' class="form-control rounded-0 chat-box border-info" rows='3'
+                        placeholder="Type here..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ************************ End frame de videochamada ************************ -->
+</body>
+
+</html>

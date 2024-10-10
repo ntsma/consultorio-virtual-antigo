@@ -1,0 +1,732 @@
+.container-fluid {
+  height: 100vh;
+}
+
+.chat-col {
+  right: -100vw;
+  bottom: 0;
+  top: 40.5px;
+  z-index: 1000;
+  position: fixed;
+  color: #fff;
+  padding-right: 5px;
+  padding-left: 5px;
+  padding-bottom: 40px;
+  padding-top: 15px;
+  min-height: 100vh;
+}
+
+.chat-col.chat-opened {
+  right: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: all 0.3s ease !important;
+  -webkit-transition: all 0.3s ease !important;
+  -moz-transition: all 0.3s ease !important;
+}
+
+#chat-messages {
+  height: 70vh;
+  margin-bottom: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE 10+ */
+}
+
+#chat-messages::-webkit-scrollbar {
+  width: 0px;
+  /* remove scrollbar space */
+  background: transparent;
+}
+
+.chat-box {
+  bottom: 30px;
+  right: 0;
+  position: absolute;
+  border: 0;
+  border-top: 1px groove white;
+  border-left: 1px groove white;
+  font-size: small;
+}
+
+.chat-box::placeholder {
+  font-size: small;
+  font-weight: lighter;
+  font-style: italic;
+}
+
+.chat-box, .chat-box:focus {
+  resize: none !important;
+  box-shadow: none !important;
+}
+
+.chat-row {
+  height: 100%;
+  overflow-x: scroll;
+}
+
+.main {
+  padding-top: 40px;
+  height: 100vh;
+  width: 100%;
+}
+
+.remote-video {
+  -moz-transform: rotateY(180deg);
+  -ms-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+  object-fit: cover;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.remote-video:hover+.remote-video-controls, .remote-video-controls:hover {
+  visibility: visible;
+}
+
+.local-video {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  min-width: 15%;
+  max-width: 28%;
+  min-height: 15%;
+  max-height: 28%;
+}
+
+.mirror-mode {
+  -ms-transform: scaleX(-1);
+  -moz-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.sender-info {
+  font-size: smaller;
+  margin-top: 5px;
+  align-self: flex-end;
+}
+
+.msg {
+  font-weight: 400;
+  font-size: 12px;
+  color: black;
+  background-color: wheat;
+}
+
+.chat-card {
+  border-radius: 6px;
+}
+
+.btn-no-effect:focus {
+  box-shadow: none;
+}
+
+.very-small {
+  font-size: 6px !important;
+}
+
+#close-single-peer-btn {
+  position: fixed;
+  top: 0;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #f1f1f1;
+  border-radius: 0%;
+  z-index: 100;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.record-option {
+  height: 200px;
+  border-radius: 10%;
+  border: 1px solid #17a2b8;
+  cursor: pointer;
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.custom-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.custom-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #17a2b8;
+  width: 80%;
+}
+
+@keyframes animatetop {
+  from {
+    top: -300px;
+    opacity: 0
+  }
+  to {
+    top: 0;
+    opacity: 1
+  }
+}
+
+@media only screen and (max-width:767px) {
+  .chat-col {
+    right: -100vw;
+    width: 100vw;
+    z-index: 99999;
+    transition: 0.3s;
+    top: 47px;
+  }
+  .chat-opened::-webkit-scrollbar {
+    display: none;
+  }
+  #chat-messages {
+    height: 60vh;
+  }
+  .chat-box {
+    bottom: 90px;
+    margin-bottom: 0px;
+  }
+  .card-sm {
+    max-width: 100%;
+    min-width: 50%;
+  }
+  .local-video {
+    width: 40vw;
+  }
+}
+
+@media (min-width:768px) {
+  .card {
+    width: 100%;
+    z-index: -1000;
+  }
+}
+
+/*////// icons CSS start ////////////////////////*/
+
+#icons {
+  bottom: 77px;
+  right: 6vw;
+  position: absolute;
+  z-index: 2;
+}
+
+circle {
+  fill: #666;
+  fill-opacity: 0.6;
+}
+
+svg.on circle {
+  fill: red;
+}
+
+/* on icons are hidden by default */
+path#CheckIcon{
+  display: none;
+}
+
+path.on {
+  display: none;
+}
+
+/* off icons are displayed by default */
+
+path.off {
+  display: inline-block;
+}
+
+/* on icons are displayed when parent svg has class 'on' */
+
+svg.on path.on {
+  display: inline-block;
+}
+
+/* off icons are hidden when parent svg has class 'on' */
+
+svg.on path.off {
+  display: none;
+}
+
+svg {
+  border-radius: 48px;
+  box-shadow: 2px 2px 24px #444;
+  display: block;
+  margin: 0 0 3vh 0;
+  transform: translateX(calc(-6vw - 96px));
+  transition: all .1s;
+  transition-timing-function: ease-in-out;
+}
+
+svg:hover {
+  box-shadow: 4px 4px 48px #666;
+}
+
+#icons.active svg {
+  transform: translateX(0);
+}
+
+#mute-audio {
+  transition: 40ms;
+}
+
+#mute-audio:hover, #mute-audio.on {
+  background: #dd2c00;
+}
+
+.chat-box {
+  bottom: 90px;
+  margin-bottom: 0px;
+}
+
+.card-sm {
+  max-width: 100%;
+  min-width: 70%!
+}
+
+#mute-video {
+  transition: 120ms;
+}
+
+#mute-video:hover, #mute-video.on {
+  background: #dd2c00;
+}
+
+#mute-video:hover circle {
+  fill: #407cf7;
+}
+
+@media (min-width:768px) {
+  .card {
+    width: 70% !important;
+    z-index: 1000;
+  }
+}
+
+#switch-video:hover {
+  background: #407cf7;
+}
+
+#switch-video:hover circle {
+  fill: #407cf7;
+}
+
+#fullscreen {
+  transition: 280ms;
+}
+
+#fullscreen:hover, #fullscreen.on {
+  background: #407cf7;
+}
+
+#fullscreen:hover circle {
+  fill: #407cf7;
+}
+
+#hangup {
+  transition: 360ms;
+}
+
+#hangup:hover {
+  background: #dd2c00;
+}
+
+#hangup:hover circle {
+  fill: #dd2c00;
+}
+
+#send_file {
+  transition: 360ms;
+}
+
+#send_file:hover {
+  background: #407cf7;
+}
+
+#send_file:hover circle {
+  fill: #407cf7;
+}
+
+/*////// icons CSS end /////////////////////////*/
+
+.loginPages {
+  position: relative;
+  top: 50vh;
+  transform: translateY(-50%);
+  color: white;
+  text-shadow: black 0.1em 0.1em 0.2em;
+}
+
+
+#room-created a {
+  color: yellow;
+  font-weight: bold;
+}
+
+#icons {
+    bottom: 77px;
+    right: 6vw;
+    position: absolute;
+    z-index: 2;
+      
+  }
+  
+  circle {
+    fill: #666;
+    fill-opacity: 0.6;
+  }
+  
+  svg.on circle {
+    fill: red;
+  }
+  
+  /* on icons are hidden by default */
+  path.on {
+    display: none;
+  }
+  
+  /* off icons are displayed by default */
+  path.off {
+    display: inline-block;
+  }
+  
+  /* on icons are displayed when parent svg has class 'on' */
+  svg.on path.on {
+    display: inline-block;
+  }
+  
+  /* off icons are hidden when parent svg has class 'on' */
+  svg.on path.off {
+    display: none;
+  }
+  
+  svg {
+    border-radius: 48px;
+    box-shadow: 2px 2px 24px #444;
+    display: block;
+    margin: 0 0 3vh 0;
+    transform: translateX(calc(-6vw - 96px));
+    transition: all .1s;
+    transition-timing-function: ease-in-out;
+  }
+  
+  svg:hover {
+    box-shadow: 4px 4px 48px #666;
+  }
+  
+  #icons.active svg {
+    transform: translateX(0);
+  }
+  
+  #mute-audio {
+    transition: 40ms;
+  }
+  
+  #mute-audio:hover,
+  #mute-audio.on {
+    background: #dd2c00;
+  }
+  
+  #mute-audio:hover circle {
+    fill: #407cf7;
+  }
+  
+  #mute-video {
+    transition: 120ms;
+  }
+  
+  #mute-video:hover,
+  #mute-video.on {
+    background: #dd2c00;
+  }
+  
+  #mute-video:hover circle {
+    fill: #407cf7;
+  }
+  
+  #switch-video {
+    transition: 200ms;
+  }
+  
+  #switch-video:hover {
+    background: #407cf7;
+  }
+  
+  #switch-video:hover circle {
+    fill: #407cf7;
+  }
+  
+  #fullscreen {
+    transition: 280ms;
+  }
+  
+  #fullscreen:hover,
+  #fullscreen.on {
+    background: #407cf7;
+  }
+  
+  #fullscreen:hover circle {
+    fill: #407cf7;
+  }
+  
+  #hangup {
+    transition: 360ms;
+  }
+  
+  #hangup:hover {
+    background: #dd2c00;
+  }
+  #hangup:hover circle {
+    fill: #dd2c00;
+  }
+  
+  #send_file{
+    transition: 360ms;
+  }
+  
+  #send_file:hover {
+    background: #407cf7;
+  }
+  #send_file:hover circle {
+    fill: #407cf7;
+  }
+  
+  /*////// icons CSS end /////////////////////////*/
+#room-created a:hover {
+  color: yellowgreen;
+}
+
+.card {
+  width: 100% !important;
+  height: 100%;
+  z-index: -1000;
+}
+
+#main-section {
+  width: 100%;
+  height: 100vh;
+}
+
+.btn-download {
+  background-color: DodgerBlue;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Darker background on mouse-over */
+.btn-download:hover {
+  background-color: RoyalBlue;
+}
+
+/*    --------------------------      Icones Status -----------------------                */
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  color: white;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #222;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
+  right: 0;
+  left: auto;
+}
+
+.dropdown-item {
+  color: white;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.status {
+  position: relative;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+.status.online, .status.online:before {
+  background: #72ff7d;
+}
+.status.offline, .status.offline:before {
+  background: #ff4242;
+}
+.status.invisible, .status.invisible:before {
+  background: #42e5ff;
+}
+.status.idle, .status.idle:before {
+  background: #ffda72;
+}
+.status:before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite ease-in;
+}
+@keyframes pulse {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+ }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+ }
+}
+body {
+  background: #8629e2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#welcome{
+  z-index: 1000000;
+  background-image: url('../img/img0.png');
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-size: 100% 100%;
+  object-fit: fill;
+  text-shadow: white 0.1em 0.1em 0.2em;
+}
+
+#textDi{
+  animation: apareceu 1.5s;
+  text-align: center;
+  margin-top:30px;
+  font-size: clamp(12px,12px+1vh,35px);
+}
+
+@keyframes sumiu{
+  0%{opacity: 1;}
+  25%{opacity: 0.7;}
+  50%{opacity: 0.4;}
+  100%{opacity: 0;}
+}
+
+@keyframes apareceu{
+  0%{opacity: 0;}
+  25%{opacity: 0.4;}
+  50%{opacity: 0.7;}
+  100%{opacity: 1;}
+}
+
+.backLogin{
+  background-image:url('../img/Reset_2.png'); background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+
+.popuplink{
+  z-index: 100000;
+  width: 500px;
+  position: relative;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%,-50%);
+  background-color: white;
+}
+
+.presentation {
+  text-align: center;
+  margin-top: 60px;
+}
+
+.presentation img {
+  animation: apareceu .9s;
+  max-width: 130px;
+}
+
+#jump {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: 7px;
+  margin: 0px 5px 5px 0px;
+}
+
+#aviso{
+  z-index: 1000000000;
+  position: relative;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%,-50%);
+  background-color: whitesmoke;
+  height: 250px;
+  margin-left: 0px;
+  border-radius: 15px;
+  text-align: center;
+  animation: avisoanim 3s ease-in;
+}
+
+.usertext{
+  position: relative;
+  top: 36%;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes avisoanim{
+  0%{opacity: 0;}
+  35%{opacity: 0;}
+  80%{opacity: 0.9;}
+  100%{opacity: 1;}
+}
+
+#infcopy{
+  position: relative;
+  top: 40px;
+  animation: apareceu 5s ease-in;
+  color: white;
+}
+/* Percent File Send */
+#myProgress {
+  width: 100%;
+  background-color: #ddd;
+}
+
+#myBar {
+  width: 0%;
+  height: 30px;
+  background-color: #4CAF50;
+}

@@ -1,0 +1,17 @@
+[Unit]
+Description=Video App TelesSaude
+After=network-online.target
+
+[Service]
+Restart=on-failure
+# do chdir before running the service
+WorkingDirectory=/home/ec2-user/Video-Call-App-NodeJS/src/
+ExecStart=/usr/bin/node app.js
+# limit CPU and RAM quota for our service
+CPUAccounting=true
+CPUQuota=10%
+MemoryAccounting=true
+MemoryLimit=50M
+
+[Install]
+WantedBy=multi-user.target

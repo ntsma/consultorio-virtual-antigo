@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    user: "node:node"
+    volumes:
+      - ./app:/home/app
+      - ./init.sh:/home/init.sh
+    ports:
+      - "3000:3000"
+      - "443:443"     # Porta HTTPS
+      - "80:80"       # Porta HTTP (opcional)
