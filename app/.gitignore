@@ -26,6 +26,4 @@ node_modules/
 .env.test
 
 #certificados
-certs/
-*.pem
 .vercel
