@@ -1,6 +1,12 @@
 export default {
 
     compatibilityTest() {
+        // Check if the browser supports RTCPeerConnection (WebRTC standard API)
+        if (window.RTCPeerConnection) {
+            return true;
+        }
+        
+        // Additional checks for older versions of Firefox and Chrome
         var prefix;
         var version;
         if (window.mozRTCPeerConnection || navigator.mozGetUserMedia) {
@@ -10,12 +16,12 @@ export default {
             prefix = 'webkit';
             version = navigator.userAgent.match(/Chrom(e|ium)/) && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2], 10);
         }
-    
-        if (prefix == 'moz' || prefix == 'webkit' && version > 41) {
+
+        if ((prefix == 'moz' || prefix == 'webkit') && version > 41) {
             return true;
         } else {
             return false;
-        }    
+        }
     },
 
 
