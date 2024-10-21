@@ -165,17 +165,25 @@ export default {
                 //     username: 'webrtc@live.com'
                 //  }
                   {
-                    urls: "turn:uotlaf.com:80",
+                    urls: "turn:uotlaf.com:3478",
+                    credential: "asfalto1324im3",
+                    username: "telessaude"
                   },
                   {
-                    urls: "turn:uotlaf.com:80?transport=tcp",
+                    urls: "turn:uotlaf.com:3478?transport=tcp",
+                    credential: "asfalto1324im3",
+                    username: "telessaude"
                   },
-                  {
-                    urls: "turn:uotlaf.com:443",
-                  },
-                  {
-                    urls: "turns:uotlaf.com:443?transport=tcp",
-                  },
+                //   {
+                //     urls: "turn:uotlaf.com:443",
+                //     credential: "asfalto1324im3",
+                //     username: "telessaude"
+                //   },
+                //   {
+                //     urls: "turns:uotlaf.com:443?transport=tcp",
+                //     credential: "asfalto1324im3",
+                //     username: "telessaude"
+                //   },
             ]
         };
     },
