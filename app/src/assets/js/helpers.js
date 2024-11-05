@@ -159,31 +159,16 @@ export default {
                 {
                     urls: "stun:stun4.l.google.com:19302"
                 },
-                // {
-                //     urls: 'turn:numb.viagenie.ca',
-                //     credential: 'muazkh',
-                //     username: 'webrtc@live.com'
-                //  }
-                //   {
-                //     urls: "turn:uotlaf.com:3478",
-                //     credential: "asfalto1324im3",
-                //     username: "telessaude"
-                //   },
-                //   {
-                //     urls: "turn:uotlaf.com:3478?transport=tcp",
-                //     credential: "asfalto1324im3",
-                //     username: "telessaude"
-                //   },
-                //   {
-                //     urls: "turn:uotlaf.com:443",
-                //     credential: "asfalto1324im3",
-                //     username: "telessaude"
-                //   },
-                //   {
-                //     urls: "turns:uotlaf.com:443?transport=tcp",
-                //     credential: "asfalto1324im3",
-                //     username: "telessaude"
-                //   },
+                {
+                    urls: 'turn:64.227.109.45:3478',
+                    credential: 'usuario',
+                    username: '5enh@12sgjf!'
+                },
+                {
+                    urls: 'stun:64.227.109.45:3478',
+                    credential: 'usuario',
+                    username: '5enh@12sgjf!'
+                }
             ]
         };
     },
