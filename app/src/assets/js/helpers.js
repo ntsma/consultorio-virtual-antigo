@@ -6,22 +6,22 @@ export default {
             return true;
         }
         
-        // Additional checks for older versions of Firefox and Chrome
-        var prefix;
-        var version;
-        if (window.mozRTCPeerConnection || navigator.mozGetUserMedia) {
-            prefix = 'moz';
-            version = parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1], 10);
-        } else if (window.webkitRTCPeerConnection || navigator.webkitGetUserMedia) {
-            prefix = 'webkit';
-            version = navigator.userAgent.match(/Chrom(e|ium)/) && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2], 10);
-        }
+        // // Additional checks for older versions of Firefox and Chrome
+        // var prefix;
+        // var version;
+        // if (window.mozRTCPeerConnection || navigator.mozGetUserMedia) {
+        //     prefix = 'moz';
+        //     version = parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1], 10);
+        // } else if (window.webkitRTCPeerConnection || navigator.webkitGetUserMedia) {
+        //     prefix = 'webkit';
+        //     version = navigator.userAgent.match(/Chrom(e|ium)/) && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2], 10);
+        // }
 
-        if ((prefix == 'moz' || prefix == 'webkit') && version > 41) {
-            return true;
-        } else {
-            return false;
-        }
+        // if ((prefix == 'moz' || prefix == 'webkit') && version > 41) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
     },
 
 
@@ -79,7 +79,7 @@ export default {
 
 
     userMediaAvailable() {
-        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        return !!(navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || window.RTCPeerConnection);
     },
 
 
@@ -87,8 +87,8 @@ export default {
         if (this.userMediaAvailable()) {
             return navigator.mediaDevices.getUserMedia({
                 video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
+                    width: {ideal: 720 },
+                    height: {ideal: 360 },
                     facingMode: "user"
                 },
                 audio: {
@@ -164,16 +164,16 @@ export default {
                 //     credential: 'muazkh',
                 //     username: 'webrtc@live.com'
                 //  }
-                  {
-                    urls: "turn:uotlaf.com:3478",
-                    credential: "asfalto1324im3",
-                    username: "telessaude"
-                  },
-                  {
-                    urls: "turn:uotlaf.com:3478?transport=tcp",
-                    credential: "asfalto1324im3",
-                    username: "telessaude"
-                  },
+                //   {
+                //     urls: "turn:uotlaf.com:3478",
+                //     credential: "asfalto1324im3",
+                //     username: "telessaude"
+                //   },
+                //   {
+                //     urls: "turn:uotlaf.com:3478?transport=tcp",
+                //     credential: "asfalto1324im3",
+                //     username: "telessaude"
+                //   },
                 //   {
                 //     urls: "turn:uotlaf.com:443",
                 //     credential: "asfalto1324im3",
@@ -329,31 +329,32 @@ export default {
 
 
     adjustVideoElemSize() {
-        // let elem = document.getElementsByClassName( 'card' );
-        // let totalRemoteVideosDesktop = elem.length;
-        // let newWidth = totalRemoteVideosDesktop <= 2 ? '50%' : (
-        //     totalRemoteVideosDesktop == 3 ? '33.33%' : (
-        //         totalRemoteVideosDesktop <= 8 ? '25%' : (
-        //             totalRemoteVideosDesktop <= 15 ? '20%' : (
-        //                 totalRemoteVideosDesktop <= 18 ? '16%' : (
-        //                     totalRemoteVideosDesktop <= 23 ? '15%' : (
-        //                         totalRemoteVideosDesktop <= 32 ? '12%' : '10%'
-        //                     )
-        //                 )
-        //             )
-        //         )
-        //     )
-        // );
+        let elem = document.getElementsByClassName( 'card' );
+        let totalRemoteVideosDesktop = elem.length;
+        
+        let newWidth = totalRemoteVideosDesktop <= 2 ? '50%' : (
+            totalRemoteVideosDesktop == 3 ? '33.33%' : (
+                totalRemoteVideosDesktop <= 8 ? '25%' : (
+                    totalRemoteVideosDesktop <= 15 ? '20%' : (
+                        totalRemoteVideosDesktop <= 18 ? '16%' : (
+                            totalRemoteVideosDesktop <= 23 ? '15%' : (
+                                totalRemoteVideosDesktop <= 32 ? '12%' : '10%'
+                            )
+                        )
+                    )
+                )
+            )
+        );
 
 
-        // for ( let i = 0; i < totalRemoteVideosDesktop; i++ ) {
-        //     elem[i].style.width = newWidth;
-        // }
+        for ( let i = 0; i < totalRemoteVideosDesktop; i++ ) {
+            elem[i].style.width = newWidth;
+        }
     },
 
 
     createDemoRemotes(str, total = 6) {
-        let i = 0;
+        let i = 3;
 
         let testInterval = setInterval(() => {
             let newVid = document.createElement('video');

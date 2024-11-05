@@ -195,7 +195,6 @@ window.addEventListener('load', () => {
             };
 
 
-
             //add
             pc[partnerName].ontrack = (e) => {
                 let str = e.streams[0];
@@ -208,6 +207,7 @@ window.addEventListener('load', () => {
                     let statusEl = document.getElementById('status-atual');
                     statusEl.removeAttribute('class');
                     statusEl.setAttribute('class', 'status offline');
+
                     //video elem
                     let newVid = document.createElement('video');
                     newVid.id = `${partnerName}-video`;
@@ -217,7 +217,6 @@ window.addEventListener('load', () => {
 
                     //video controls elements
                     let controlDiv = document.createElement('div');
-
 
                     //create a new div for card
                     let cardDiv = document.createElement('div');

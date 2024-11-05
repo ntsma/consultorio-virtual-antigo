@@ -81,11 +81,8 @@
   -webkit-transform: rotateY(180deg);
   transform: rotateY(180deg);
   object-fit: cover;
-  position: fixed;
   right: 0;
   bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
   max-width: 100%;
   max-height: 100%;
 }
@@ -93,6 +90,18 @@
 .remote-video:hover+.remote-video-controls, .remote-video-controls:hover {
   visibility: visible;
 }
+
+.name-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
 
 .local-video {
   bottom: 0;
@@ -208,8 +217,9 @@
     margin-bottom: 0px;
   }
   .card-sm {
-    max-width: 100%;
     min-width: 50%;
+    max-width: 100%;
+    z-index: -1000;
   }
   .local-video {
     width: 40vw;
@@ -218,7 +228,8 @@
 
 @media (min-width:768px) {
   .card {
-    width: 100%;
+    background-color: #666;
+    max-width: 50%;
     z-index: -1000;
   }
 }
@@ -299,10 +310,6 @@ svg:hover {
   margin-bottom: 0px;
 }
 
-.card-sm {
-  max-width: 100%;
-  min-width: 70%!
-}
 
 #mute-video {
   transition: 120ms;
@@ -317,10 +324,6 @@ svg:hover {
 }
 
 @media (min-width:768px) {
-  .card {
-    width: 70% !important;
-    z-index: 1000;
-  }
 }
 
 #switch-video:hover {
@@ -516,15 +519,15 @@ svg:hover {
   color: yellowgreen;
 }
 
-.card {
-  width: 100% !important;
-  height: 100%;
-  z-index: -1000;
-}
 
 #main-section {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
   height: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-download {
