@@ -111,6 +111,15 @@ window.addEventListener('load', () => {
                 h.addChat(data, 'remote');
             });
 
+            socket.on('user-left', (data) => {
+                // Fechar a conexão peer
+                if (pc[data.socketId]) {
+                    pc[data.socketId].close();
+                    delete pc[data.socketId];
+                }
+                // Remover o elemento de vídeo
+                h.closeVideo(data.socketId);
+            });
 
         });
 
@@ -229,6 +238,17 @@ window.addEventListener('load', () => {
                     document.getElementById('videos').appendChild(cardDiv);
 
                     h.adjustVideoElemSize();
+                }
+            };
+
+                        // rtc.js dentro da função init()
+            pc[partnerName].oniceconnectionstatechange = () => {
+                let state = pc[partnerName].iceConnectionState;
+                if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+                    // Fechar a conexão peer e remover o vídeo
+                    pc[partnerName].close();
+                    delete pc[partnerName];
+                    h.closeVideo(partnerName);
                 }
             };
 
@@ -511,6 +531,8 @@ window.addEventListener('load', () => {
                 mediaRecorder.stop();
             }
         });
+
+        
 
 
         //When user choose to record screen

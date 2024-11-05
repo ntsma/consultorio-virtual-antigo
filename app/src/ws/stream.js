@@ -33,6 +33,17 @@ const stream = ( socket ) => {
     socket.on( 'chat', ( data ) => {
         socket.to( data.room ).emit( 'chat', { sender: data.sender, msg: data.msg } );
     } );
+
+    socket.on('disconnect', () => {
+        // Identifique a sala do usuário
+        let rooms = Object.keys(socket.rooms);
+        rooms.forEach((room) => {
+            if (room !== socket.id) {
+                // Notifique os outros usuários na sala que este usuário saiu
+                socket.to(room).emit('user-left', { socketId: socket.id });
+            }
+        });
+    });
 };
 
 module.exports = stream;
