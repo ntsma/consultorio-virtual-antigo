@@ -9,5 +9,4 @@ services:
       - ./init.sh:/home/init.sh
     ports:
       - "3000:3000"
-      - "443:443"     # Porta HTTPS
-      - "80:80"       # Porta HTTP (opcional)
+      - "3001:3001"

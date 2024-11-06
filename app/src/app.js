@@ -1,12 +1,12 @@
 let fs = require('fs');
 require('dotenv').config()
 var options = {
-     key: fs.readFileSync(__dirname+'/certs/privkey.pem'),
-     cert: fs.readFileSync(__dirname+'/certs/cert.pem'),
- };
+  key: fs.readFileSync(__dirname + '/certs/privkey.pem'),
+  cert: fs.readFileSync(__dirname + '/certs/cert.pem'),
+};
 let express = require('express');
 let app = express();
-let server = require( 'https' ).createServer(options, app);
+let server = require('https').createServer(options, app);
 let serverhttp = require('http').Server(app);
 let io = require('socket.io')(server);
 let stream = require('./ws/stream');
@@ -40,5 +40,5 @@ app.get('/error', (req, res) => {
 
 io.of('/stream').on('connection', stream);
 
-server.listen( process.env.PORT_HTTPS || 443, '0.0.0.0' ); //Use Process.env.PORT for Heroku
-serverhttp.listen(process.env.PORT_HTTP || 80);
+server.listen(process.env.PORT_HTTPS, '0.0.0.0');
+serverhttp.listen(process.env.PORT_HTTP);
