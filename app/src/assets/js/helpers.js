@@ -371,7 +371,7 @@ export default {
             if (i == total) {
                 clearInterval(testInterval);
             }
-        }, 2000);
+        }, 100);
     },
 
 

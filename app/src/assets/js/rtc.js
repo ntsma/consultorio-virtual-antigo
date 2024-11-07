@@ -1,5 +1,49 @@
 import h from './helpers.js';
 
+let emptyRoomMessage = document.getElementById('empty-room-message');
+let copyRoomLink = document.getElementById('copy-room-link');
+let lastVideoCount = 0;
+
+// Função para verificar o estado da sala
+function checkRoomState() {
+    const remoteVideos = document.getElementsByClassName('remote-video');
+    const currentVideoCount = remoteVideos.length;
+    
+    // Se o número de vídeos mudou, atualizamos o estado
+    if (currentVideoCount !== lastVideoCount) {
+        if (currentVideoCount === 0) {
+            // Sala vazia
+            emptyRoomMessage.classList.remove('hidden');
+            document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
+        } else {
+            // Sala com participantes
+            emptyRoomMessage.classList.add('hidden');
+            document.body.style.background = "#222222";
+        }
+        lastVideoCount = currentVideoCount;
+    }
+}
+
+// Iniciar verificação periódica
+function startRoomStateCheck() {
+    // Verificação inicial
+    checkRoomState();
+    
+    // Verificar a cada 0,1 segundos
+    setInterval(checkRoomState, 100);
+}
+
+// Adicione o evento de clique para copiar o link
+copyRoomLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        copyRoomLink.textContent = "Link copiado!";
+        setTimeout(() => {
+            copyRoomLink.textContent = "clique aqui";
+        }, 10000);
+    });
+});
+
 window.addEventListener('load', () => {
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');
@@ -16,14 +60,15 @@ window.addEventListener('load', () => {
     }
 
     else {
+        // Inicialmente mostra a mensagem e o hexagon
+        document.getElementById('empty-room-message').classList.remove('hidden');
+        document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
 
-        if (username == 'doctor') {
-            document.getElementById('div-status').removeAttribute('hidden');
-            document.getElementById('aviso').removeAttribute('hidden');
-        }
         let commElem = document.getElementsByClassName('room-comm');
         document.querySelector('#icons').attributes.removeNamedItem('hidden');
-        document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
+
+        // Remove a definição inicial do background
+        // document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
 
         for (let i = 0; i < commElem.length; i++) {
             commElem[i].attributes.removeNamedItem('hidden');
@@ -44,6 +89,9 @@ window.addEventListener('load', () => {
 
 
         socket.on('connect', () => {
+            // Mostrar mensagem quando está sozinho
+            emptyRoomMessage.classList.remove('hidden');
+
             //set socketId
             socketId = socket.io.engine.id;
 
@@ -56,13 +104,43 @@ window.addEventListener('load', () => {
                 socketId: socketId
             });
 
+            // Também precisamos verificar quando entramos em uma sala que já tem pessoas
+            socket.on('connect', () => {
+                socketId = socket.io.engine.id;
+                
+                // Verificar se já existem vídeos remotos na sala
+                const remoteVideos = document.getElementsByClassName('remote-video');
+                if (remoteVideos.length === 0) {
+                    // Se não houver vídeos remotos, mostra a mensagem
+                    document.getElementById('empty-room-message').classList.remove('hidden');
+                    document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
+                } else {
+                    // Se já houver vídeos remotos, esconde a mensagem
+                    document.getElementById('empty-room-message').classList.add('hidden');
+                    document.body.style.background = "#222222";
+                }
+            });
 
             socket.on('new user', (data) => {
+                // Quando um novo usuário entra, escondemos a mensagem
+                document.getElementById('empty-room-message').classList.add('hidden');
+                document.body.style.background = "#222222";
+                
                 socket.emit('newUserStart', { to: data.socketId, sender: socketId });
                 pc.push(data.socketId);
                 init(true, data.socketId);
             });
 
+            // Adiciona um evento para verificar usuários existentes
+            socket.on('existing users', (count) => {
+                if (count > 0) {
+                    document.getElementById('empty-room-message').classList.add('hidden');
+                    document.body.style.background = "#222222";
+                } else {
+                    document.getElementById('empty-room-message').classList.remove('hidden');
+                    document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
+                }
+            });
 
             socket.on('newUserStart', (data) => {
                 pc.push(data.sender);
@@ -112,6 +190,12 @@ window.addEventListener('load', () => {
             });
 
             socket.on('user-left', (data) => {
+                // Verificar se ainda há outros usuários na sala
+                const remoteVideos = document.getElementsByClassName('remote-video');
+                if (remoteVideos.length === 0) {
+                    emptyRoomMessage.classList.remove('hidden');
+                    document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
+                }
                 // Fechar a conexão peer
                 if (pc[data.socketId]) {
                     pc[data.socketId].close();
@@ -540,7 +624,32 @@ window.addEventListener('load', () => {
 
         //When user choose to record screen
         document.getElementById('record-screen').addEventListener('click', () => {
-            h.toggleModal('recording-options-modal', false);
+            h.toggleModal('recording-options-modal', false);            socket.on('new user', (data) => {
+                // Quando um novo usuário entra, escondemos a mensagem
+                document.getElementById('empty-room-message').classList.add('hidden');
+                document.body.style.background = "#222222";
+                
+                socket.emit('newUserStart', { to: data.socketId, sender: socketId });
+                pc.push(data.socketId);
+                init(true, data.socketId);
+            });
+            
+            // Também precisamos verificar quando entramos em uma sala que já tem pessoas
+            socket.on('connect', () => {
+                socketId = socket.io.engine.id;
+                
+                // Verificar se já existem vídeos remotos na sala
+                const remoteVideos = document.getElementsByClassName('remote-video');
+                if (remoteVideos.length === 0) {
+                    // Se não houver vídeos remotos, mostra a mensagem
+                    document.getElementById('empty-room-message').classList.remove('hidden');
+                    document.body.style.background = "#222222 url('./assets/img/hexagon.svg') center 10em no-repeat";
+                } else {
+                    // Se já houver vídeos remotos, esconde a mensagem
+                    document.getElementById('empty-room-message').classList.add('hidden');
+                    document.body.style.background = "#222222";
+                }
+            });
 
             if (screen && screen.getVideoTracks().length) {
                 startRecording(screen);
@@ -570,4 +679,6 @@ window.addEventListener('load', () => {
         });
         
     }
+    // Inicia a verificação do estado da sala
+    startRoomStateCheck();
 });

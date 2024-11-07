@@ -654,6 +654,7 @@ body {
   height: 100vh;
   margin: 0;
   padding: 0;
+  transition: background 0.3s ease;
 }
 
 #welcome{
@@ -789,4 +790,27 @@ body {
 
 :-webkit-full-screen .btn-fullscreen::after {
     content: 'Sair da Tela Cheia';
+}
+
+.empty-room-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+    max-width: 80%;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+}
+
+.empty-room-message.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
