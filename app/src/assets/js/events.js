@@ -183,7 +183,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('fullscreenchange', function() {
     const fullscreenButtons = document.querySelectorAll('.btn-fullscreen');
     fullscreenButtons.forEach(button => {
-        button.textContent = document.fullscreenElement ? 'Sair da Tela Cheia' : 'Tela Cheia';
+        button.className = document.fullscreenElement ? 'Sair da Tela Cheia' : 'fa fa-expand';
     });
 });
 

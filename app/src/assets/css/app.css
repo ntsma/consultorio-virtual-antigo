@@ -139,11 +139,13 @@
   bottom: 0;
   left: 0;
   position: fixed;
-  min-width: 15%;
-  max-width: 28%;
-  min-height: 15%;
-  max-height: 28%;
+  min-width: 12%;
+  max-width: 20%;
+  min-height: 12%;
+  max-height: 20%;
   z-index: 10000;
+  border-radius: 5px;
+  border: #24314b 3px solid;
 }
 
 .mirror-mode {
@@ -813,4 +815,97 @@ body {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 10px;
+    width: 100vw;
+    height: calc(100vh - 60px); /* Ajuste conforme necessário para seu header */
+    padding: 10px;
+    box-sizing: border-box;
+    place-items: center; /* Centraliza os itens vertical e horizontalmente */
+    place-content: center; /* Centraliza o grid inteiro */
+}
+
+/* Para telas maiores, force 2 colunas */
+@media (min-width: 1024px) {
+    #videos {
+        grid-template-columns: repeat(2, minmax(400px, 1fr));
+    }
+    
+    /* Quando há 3 vídeos, centralize o último */
+    .card-sm:last-child:nth-child(2n + 1) {
+        grid-column: 1 / -1;
+        max-width: 600px; /* Limita a largura do vídeo centralizado */
+        justify-self: center;
+    }
+}
+
+.card-sm {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    max-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+}
+
+.remote-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.remote-video-controls {
+    position: absolute;
+    bottom: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.remote-video-controls button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.remote-video-controls button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Ajuste para diferentes números de participantes */
+@media (min-width: 768px) {
+    #videos {
+        grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    #videos {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-sm {
+        min-height: 200px;
+    }
 }

@@ -37,7 +37,6 @@ export default {
     closeVideo(elemId) {
         if (document.getElementById(elemId)) {
             document.getElementById(elemId).remove();
-            this.adjustVideoElemSize();
         }
         let statusEl = document.getElementById('status-atual');
         statusEl.removeAttribute('class');
@@ -313,29 +312,7 @@ export default {
     },
 
 
-    adjustVideoElemSize() {
-        let elem = document.getElementsByClassName( 'card' );
-        let totalRemoteVideosDesktop = elem.length;
-        
-        let newWidth = totalRemoteVideosDesktop <= 2 ? '50%' : (
-            totalRemoteVideosDesktop == 3 ? '33.33%' : (
-                totalRemoteVideosDesktop <= 8 ? '25%' : (
-                    totalRemoteVideosDesktop <= 15 ? '20%' : (
-                        totalRemoteVideosDesktop <= 18 ? '16%' : (
-                            totalRemoteVideosDesktop <= 23 ? '15%' : (
-                                totalRemoteVideosDesktop <= 32 ? '12%' : '10%'
-                            )
-                        )
-                    )
-                )
-            )
-        );
 
-
-        for ( let i = 0; i < totalRemoteVideosDesktop; i++ ) {
-            elem[i].style.width = newWidth;
-        }
-    },
 
 
     createDemoRemotes(str, total = 6) {
@@ -364,7 +341,6 @@ export default {
             //put div in main-section elem
             document.getElementById('videos').appendChild(cardDiv);
 
-            this.adjustVideoElemSize();
 
             i++;
 

@@ -294,37 +294,34 @@ window.addEventListener('load', () => {
                 if (document.getElementById(`${partnerName}-video`)) {
                     document.getElementById(`${partnerName}-video`).srcObject = str;
                 } else {
-                    // Cria o elemento de vídeo
+                    let cardDiv = document.createElement('div');
+                    cardDiv.className = 'card-sm';
+                    cardDiv.id = partnerName;
+                    
                     let newVid = document.createElement('video');
                     newVid.id = `${partnerName}-video`;
                     newVid.srcObject = str;
                     newVid.autoplay = true;
+                    newVid.playsInline = true;
                     newVid.className = 'remote-video';
-
-                    // Cria os controles de vídeo
+                    
                     let controlDiv = document.createElement('div');
                     controlDiv.className = 'remote-video-controls';
                     controlDiv.innerHTML = `
-                        <div class="video-container">
-                            <div class="control-buttons">
-                                <button class="btn-fullscreen" data-video="${partnerName}-video">Tela Cheia</button>
-                                <button class="btn-mute" data-video="${partnerName}-video">Mutar</button>
-                                <button class="btn-toggle-video" data-video="${partnerName}-video">Desligar Vídeo</button>
-                            </div>
-                        </div>
+                        <button class="btn-fullscreen" data-video="${partnerName}-video">
+                            <i class="fa fa-expand"></i>
+                        </button>
+                        <button class="btn-mute" data-video="${partnerName}-video">
+                            <i class="fa fa-microphone"></i>
+                        </button>
+                        <button class="btn-toggle-video" data-video="${partnerName}-video">
+                            <i class="fa fa-video"></i>
+                        </button>
                     `;
-
-                    // Cria o card de vídeo
-                    let cardDiv = document.createElement('div');
-                    cardDiv.className = 'card card-sm';
-                    cardDiv.id = partnerName;
+                    
                     cardDiv.appendChild(newVid);
                     cardDiv.appendChild(controlDiv);
-
-                    // Adiciona o card ao elemento 'videos'
                     document.getElementById('videos').appendChild(cardDiv);
-
-                    h.adjustVideoElemSize();
                 }
             };
 
