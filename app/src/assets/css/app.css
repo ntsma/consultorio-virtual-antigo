@@ -102,6 +102,38 @@
   font-size: 14px;
 }
 
+.video-container {
+  position: relative;
+  display: inline-block;
+  margin: 5px;
+}
+
+.remote-video {
+  width: 100%;
+  height: auto;
+}
+
+.remote-video-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+
+.remote-video-controls button {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.remote-video-controls button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
 
 .local-video {
   bottom: 0;
@@ -111,6 +143,7 @@
   max-width: 28%;
   min-height: 15%;
   max-height: 28%;
+  z-index: 10000;
 }
 
 .mirror-mode {
@@ -219,7 +252,8 @@
   .card-sm {
     min-width: 50%;
     max-width: 100%;
-    z-index: -1000;
+    z-index: 1; /* Alterado para um valor positivo */
+    position: relative;
   }
   .local-video {
     width: 40vw;
@@ -230,15 +264,15 @@
   .card {
     background-color: #666;
     max-width: 50%;
-    z-index: -1000;
   }
 }
 
 /*////// icons CSS start ////////////////////////*/
 
 #icons {
-  bottom: 77px;
-  right: 6vw;
+  display: grid;
+  bottom: 50px;
+  right: 50vw;
   position: absolute;
   z-index: 2;
 }
@@ -732,4 +766,27 @@ body {
   width: 0%;
   height: 30px;
   background-color: #4CAF50;
+}
+
+/* Estilo para botão mutado */
+.btn-mute.muted {
+    background-color: #ff4444;
+}
+
+/* Esconder controles em tela cheia exceto botão de sair */
+:fullscreen .remote-video-controls button:not(.btn-fullscreen) {
+    display: none;
+}
+
+:-webkit-full-screen .remote-video-controls button:not(.btn-fullscreen) {
+    display: none;
+}
+
+/* Alterar texto do botão em tela cheia */
+:fullscreen .btn-fullscreen::after {
+    content: 'Sair da Tela Cheia';
+}
+
+:-webkit-full-screen .btn-fullscreen::after {
+    content: 'Sair da Tela Cheia';
 }

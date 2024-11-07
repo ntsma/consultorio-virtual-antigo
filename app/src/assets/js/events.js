@@ -130,4 +130,69 @@ window.addEventListener('load', () => {
         statusEl.setAttribute('class', el.childNodes[0].classList.value); //el.classList.value
     }))
 
+    // Eventos para os botões dos vídeos remotos
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('btn-fullscreen')) {
+        const videoId = e.target.dataset.video;
+        const video = document.getElementById(videoId);
+        if (video) {
+            if (!document.fullscreenElement) {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+    } else if (e.target && e.target.classList.contains('btn-mute')) {
+        const videoId = e.target.dataset.video;
+        const video = document.getElementById(videoId);
+        if (video && video.srcObject) {
+            const audioTrack = video.srcObject.getAudioTracks()[0];
+            if (audioTrack) {
+                audioTrack.enabled = !audioTrack.enabled;
+                e.target.textContent = audioTrack.enabled ? 'Mutar' : 'Desmutar';
+                e.target.classList.toggle('muted');
+            }
+        }
+    } else if (e.target && e.target.classList.contains('btn-mute')) {
+        const videoId = e.target.dataset.video;
+        const video = document.getElementById(videoId);
+        if (video) {
+            video.muted = !video.muted;
+            e.target.textContent = video.muted ? 'Desmutar' : 'Mutar';
+        }
+    } else if (e.target && e.target.classList.contains('btn-toggle-video')) {
+        const videoId = e.target.dataset.video;
+        const video = document.getElementById(videoId);
+        if (video) {
+            const stream = video.srcObject;
+            const videoTrack = stream.getVideoTracks()[0];
+            videoTrack.enabled = !videoTrack.enabled;
+            e.target.textContent = videoTrack.enabled ? 'Desligar Vídeo' : 'Ligar Vídeo';
+        }
+    }
 });
+
+document.addEventListener('fullscreenchange', function() {
+    const fullscreenButtons = document.querySelectorAll('.btn-fullscreen');
+    fullscreenButtons.forEach(button => {
+        button.textContent = document.fullscreenElement ? 'Sair da Tela Cheia' : 'Tela Cheia';
+    });
+});
+
+document.addEventListener('webkitfullscreenchange', function() {
+    const fullscreenButtons = document.querySelectorAll('.btn-fullscreen');
+    fullscreenButtons.forEach(button => {
+        button.textContent = document.webkitFullscreenElement ? 'Sair da Tela Cheia' : 'Tela Cheia';
+    });
+});
+    
+});
+

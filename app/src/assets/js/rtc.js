@@ -209,32 +209,35 @@ window.addEventListener('load', () => {
                 let str = e.streams[0];
                 if (document.getElementById(`${partnerName}-video`)) {
                     document.getElementById(`${partnerName}-video`).srcObject = str;
-                }
-
-                else {
-                    //change status to Em Consulta
-                    let statusEl = document.getElementById('status-atual');
-                    statusEl.removeAttribute('class');
-                    statusEl.setAttribute('class', 'status offline');
-
-                    //video elem
+                } else {
+                    // Cria o elemento de vídeo
                     let newVid = document.createElement('video');
                     newVid.id = `${partnerName}-video`;
                     newVid.srcObject = str;
                     newVid.autoplay = true;
                     newVid.className = 'remote-video';
 
-                    //video controls elements
+                    // Cria os controles de vídeo
                     let controlDiv = document.createElement('div');
+                    controlDiv.className = 'remote-video-controls';
+                    controlDiv.innerHTML = `
+                        <div class="video-container">
+                            <div class="control-buttons">
+                                <button class="btn-fullscreen" data-video="${partnerName}-video">Tela Cheia</button>
+                                <button class="btn-mute" data-video="${partnerName}-video">Mutar</button>
+                                <button class="btn-toggle-video" data-video="${partnerName}-video">Desligar Vídeo</button>
+                            </div>
+                        </div>
+                    `;
 
-                    //create a new div for card
+                    // Cria o card de vídeo
                     let cardDiv = document.createElement('div');
                     cardDiv.className = 'card card-sm';
                     cardDiv.id = partnerName;
                     cardDiv.appendChild(newVid);
                     cardDiv.appendChild(controlDiv);
 
-                    //put div in main-section elem
+                    // Adiciona o card ao elemento 'videos'
                     document.getElementById('videos').appendChild(cardDiv);
 
                     h.adjustVideoElemSize();
@@ -565,5 +568,6 @@ window.addEventListener('load', () => {
                 }).catch(() => { });
             }
         });
+        
     }
 });
