@@ -38,7 +38,7 @@ app.get('/error', (req, res) => {
 });
 
 
-io.of('/stream').on('connection', stream);
+io.of('/stream').on('connection', (socket) => stream(io, socket));
 
 server.listen(process.env.PORT_HTTPS, '0.0.0.0');
 serverhttp.listen(process.env.PORT_HTTP);

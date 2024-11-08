@@ -1,12 +1,12 @@
-const stream = (socket) => {
+const stream = (io, socket) => {
     socket.on('subscribe', (data) => {
         // Junte-se à sala
         socket.join(data.room);
         socket.join(data.socketId);
 
         // Conte quantos usuários existem na sala
-        const room = socket.adapter.rooms.get(data.room);
-        const roomSize = room ? room.size : 0;
+        const room = socket.adapter.rooms[data.room];
+        const roomSize = room ? Object.keys(room.sockets).length : 0;
 
         // Emite o status da sala para todos os participantes
         io.to(data.room).emit('room status', {
@@ -36,7 +36,7 @@ const stream = (socket) => {
     });
 
     socket.on('disconnect', () => {
-        const rooms = [...socket.rooms];
+        const rooms = Object.keys(socket.rooms);
         rooms.forEach(room => {
             const remainingClients = socket.adapter.rooms.get(room);
             const count = remainingClients ? remainingClients.size - 1 : 0;
