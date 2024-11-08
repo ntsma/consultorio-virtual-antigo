@@ -915,3 +915,43 @@ body {
         min-height: 200px;
     }
 }
+
+.btn-mute .fa-microphone-slash,
+.btn-toggle-video .fa-video-slash {
+    color: red;
+}
+
+.btn-fullscreen {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-fullscreen:hover {
+    opacity: 0.8;
+}
+
+.btn-fullscreen i {
+    font-size: 1.2em;
+}
+
+/* Estilos para elementos em tela cheia */
+:fullscreen .remote-video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
+
+:-webkit-full-screen .remote-video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
+
+:-ms-fullscreen .remote-video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}

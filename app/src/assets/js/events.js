@@ -132,36 +132,38 @@ window.addEventListener('load', () => {
 
     // Eventos para os botões dos vídeos remotos
 document.addEventListener('click', (e) => {
-    if (e.target && e.target.classList.contains('btn-fullscreen')) {
-        const videoId = e.target.dataset.video;
+    if (e.target.closest('.btn-fullscreen')) {
+        const button = e.target.closest('.btn-fullscreen');
+        const videoId = button.dataset.video;
         const video = document.getElementById(videoId);
+        const icon = button.querySelector('i');
         if (video) {
-            if (!document.fullscreenElement) {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
+            // Função para entrar em tela cheia
+            const enterFullScreen = async () => {
+                try {
+                    if (video.requestFullscreen) {
+                        await video.requestFullscreen();
+                    } else if (video.webkitRequestFullscreen) {
+                        await video.webkitRequestFullscreen();
+                    } else if (video.msRequestFullscreen) {
+                        await video.msRequestFullscreen();
+                    } else if (video.mozRequestFullScreen) {
+                        await video.mozRequestFullScreen();
+                    }
+                } catch (err) {
+                    console.error('Erro ao entrar em tela cheia:', err);
                 }
-                e.target.querySelector('i').classList.remove('fa-expand');
-                e.target.querySelector('i').classList.add('fa-compress');
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-                e.target.querySelector('i').classList.remove('fa-compress');
-                e.target.querySelector('i').classList.add('fa-expand');
-            }
+            };
         }
-    } else if (e.target && e.target.classList.contains('btn-mute')) {
-        const videoId = e.target.dataset.video;
+    } else if (e.target.closest('.btn-mute')) {
+        const button = e.target.closest('.btn-mute');
+        const videoId = button.dataset.video;
         const video = document.getElementById(videoId);
         if (video && video.srcObject) {
             const audioTrack = video.srcObject.getAudioTracks()[0];
             if (audioTrack) {
                 audioTrack.enabled = !audioTrack.enabled;
-                const icon = e.target.querySelector('i');
+                const icon = button.querySelector('i');
                 if (audioTrack.enabled) {
                     icon.classList.remove('fa-microphone-slash');
                     icon.classList.add('fa-microphone');
@@ -171,14 +173,15 @@ document.addEventListener('click', (e) => {
                 }
             }
         }
-    } else if (e.target && e.target.classList.contains('btn-toggle-video')) {
-        const videoId = e.target.dataset.video;
+    } else if (e.target.closest('.btn-toggle-video')) {
+        const button = e.target.closest('.btn-toggle-video');
+        const videoId = button.dataset.video;
         const video = document.getElementById(videoId);
         if (video && video.srcObject) {
             const videoTrack = video.srcObject.getVideoTracks()[0];
             if (videoTrack) {
                 videoTrack.enabled = !videoTrack.enabled;
-                const icon = e.target.querySelector('i');
+                const icon = button.querySelector('i');
                 if (videoTrack.enabled) {
                     icon.classList.remove('fa-video-slash');
                     icon.classList.add('fa-video');
@@ -191,18 +194,32 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.addEventListener('fullscreenchange', function() {
-    const fullscreenButtons = document.querySelectorAll('.btn-fullscreen');
-    fullscreenButtons.forEach(button => {
-        button.className = document.fullscreenElement ? 'Sair da Tela Cheia' : 'fa fa-expand';
-    });
+
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.btn-fullscreen')) {
+        const button = e.target.closest('.btn-fullscreen');
+        const videoId = button.dataset.video;
+        const video = document.getElementById(videoId);
+        
+        if (video) {
+            if (document.fullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            } else {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.mozRequestFullScreen) {
+                    video.mozRequestFullScreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                }
+            }
+        }
+    }
 });
 
-document.addEventListener('webkitfullscreenchange', function() {
-    const fullscreenButtons = document.querySelectorAll('.btn-fullscreen');
-    fullscreenButtons.forEach(button => {
-        button.textContent = document.webkitFullscreenElement ? 'Sair da Tela Cheia' : 'Tela Cheia';
-    });
-});
     
 });
