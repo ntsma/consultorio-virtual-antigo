@@ -123,12 +123,18 @@
 }
 
 .remote-video-controls button {
-  background-color: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  background-color: transparent;
   border: none;
-  padding: 5px 8px;
+  color: white;
   cursor: pointer;
-  border-radius: 4px;
+}
+
+.remote-video-controls button i {
+  font-size: 20px;
+}
+
+.remote-video-controls button:hover {
+  color: #ccc;
 }
 
 .remote-video-controls button:hover {

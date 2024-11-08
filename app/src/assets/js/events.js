@@ -142,12 +142,16 @@ document.addEventListener('click', (e) => {
                 } else if (video.webkitRequestFullscreen) {
                     video.webkitRequestFullscreen();
                 }
+                e.target.querySelector('i').classList.remove('fa-expand');
+                e.target.querySelector('i').classList.add('fa-compress');
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.webkitExitFullscreen) {
                     document.webkitExitFullscreen();
                 }
+                e.target.querySelector('i').classList.remove('fa-compress');
+                e.target.querySelector('i').classList.add('fa-expand');
             }
         }
     } else if (e.target && e.target.classList.contains('btn-mute')) {
@@ -157,25 +161,32 @@ document.addEventListener('click', (e) => {
             const audioTrack = video.srcObject.getAudioTracks()[0];
             if (audioTrack) {
                 audioTrack.enabled = !audioTrack.enabled;
-                e.target.textContent = audioTrack.enabled ? 'Mutar' : 'Desmutar';
-                e.target.classList.toggle('muted');
+                const icon = e.target.querySelector('i');
+                if (audioTrack.enabled) {
+                    icon.classList.remove('fa-microphone-slash');
+                    icon.classList.add('fa-microphone');
+                } else {
+                    icon.classList.remove('fa-microphone');
+                    icon.classList.add('fa-microphone-slash');
+                }
             }
-        }
-    } else if (e.target && e.target.classList.contains('btn-mute')) {
-        const videoId = e.target.dataset.video;
-        const video = document.getElementById(videoId);
-        if (video) {
-            video.muted = !video.muted;
-            e.target.textContent = video.muted ? 'Desmutar' : 'Mutar';
         }
     } else if (e.target && e.target.classList.contains('btn-toggle-video')) {
         const videoId = e.target.dataset.video;
         const video = document.getElementById(videoId);
-        if (video) {
-            const stream = video.srcObject;
-            const videoTrack = stream.getVideoTracks()[0];
-            videoTrack.enabled = !videoTrack.enabled;
-            e.target.textContent = videoTrack.enabled ? 'Desligar Vídeo' : 'Ligar Vídeo';
+        if (video && video.srcObject) {
+            const videoTrack = video.srcObject.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                const icon = e.target.querySelector('i');
+                if (videoTrack.enabled) {
+                    icon.classList.remove('fa-video-slash');
+                    icon.classList.add('fa-video');
+                } else {
+                    icon.classList.remove('fa-video');
+                    icon.classList.add('fa-video-slash');
+                }
+            }
         }
     }
 });
@@ -195,4 +206,3 @@ document.addEventListener('webkitfullscreenchange', function() {
 });
     
 });
-
