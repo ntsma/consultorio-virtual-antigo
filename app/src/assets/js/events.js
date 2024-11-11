@@ -28,6 +28,7 @@ window.addEventListener('load', () => {
         }, 300);
     });
 
+    document.querySelector('#toggle-chat-pane').removeAttribute('hidden');
 
     //When the video frame is clicked. This will enable picture-in-picture
     document.getElementById('local').addEventListener('click', () => {

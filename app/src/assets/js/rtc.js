@@ -221,19 +221,18 @@ window.addEventListener('load', () => {
 
 
         function sendMsg(msg) {
-            let data = {
-                room: room,
-                msg: msg,
-                sender: username
-            };
+    let data = {
+        room: room,
+        msg: msg,
+        sender: username
+    };
 
-            //emit chat message
-            socket.emit('chat', data);
+    //emit chat message
+    socket.emit('chat', data);
 
-            //add localchat
-            h.addChat(data, 'local');
-        }
-
+    //add localchat
+    h.addChat(data, 'local');
+}
 
 
         function init(createOffer, partnerName) {
