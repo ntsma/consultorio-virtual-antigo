@@ -159,12 +159,12 @@ export default {
                     urls: "stun:stun4.l.google.com:19302"
                 },
                 {
-                    urls: 'turn:64.227.109.45:3478',
+                    urls: 'turn:200.137.132.126:3478',
                     credential: 'usuario',
                     username: '5enh@12sgjf!'
                 },
                 {
-                    urls: 'stun:64.227.109.45:3478',
+                    urls: 'stun:200.137.132.126:3478',
                     credential: 'usuario',
                     username: '5enh@12sgjf!'
                 }
