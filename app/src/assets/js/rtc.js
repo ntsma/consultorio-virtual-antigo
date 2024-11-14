@@ -235,181 +235,310 @@ window.addEventListener('load', () => {
 }
 
 
-        function init(createOffer, partnerName) {
-            pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+// Modificar a função init para incluir o setup do receptor de arquivos
+function init(createOffer, partnerName) {
+    pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+    setupFileReceiver(pc[partnerName]);
+    
+    if (screen && screen.getTracks().length) {
+        screen.getTracks().forEach((track) => {
+            pc[partnerName].addTrack(track, screen);//should trigger negotiationneeded event
+        });
+    }
 
+    else if (myStream) {
+        myStream.getTracks().forEach((track) => {
+            pc[partnerName].addTrack(track, myStream);//should trigger negotiationneeded event
+        });
+    }
 
-            if (screen && screen.getTracks().length) {
-                screen.getTracks().forEach((track) => {
-                    pc[partnerName].addTrack(track, screen);//should trigger negotiationneeded event
-                });
-            }
+    else {
+        h.getUserFullMedia().then((stream) => {
+            //save my stream
+            myStream = stream;
 
-            else if (myStream) {
-                myStream.getTracks().forEach((track) => {
-                    pc[partnerName].addTrack(track, myStream);//should trigger negotiationneeded event
-                });
-            }
-
-            else {
-                h.getUserFullMedia().then((stream) => {
-                    //save my stream
-                    myStream = stream;
-
-                    stream.getTracks().forEach((track) => {
-                        pc[partnerName].addTrack(track, stream);//should trigger negotiationneeded event
-                    });
-
-                    h.setLocalStream(stream);
-                }).catch((e) => {
-                    console.error(`stream error: ${e}`);
-                });
-            }
-
-
-
-            //create offer
-            if (createOffer) {
-                pc[partnerName].onnegotiationneeded = async () => {
-                    let offer = await pc[partnerName].createOffer();
-
-                    await pc[partnerName].setLocalDescription(offer);
-
-                    socket.emit('sdp', { description: pc[partnerName].localDescription, to: partnerName, sender: socketId });
-                };
-            }
-
-
-
-            //send ice candidate to partnerNames
-            pc[partnerName].onicecandidate = ({ candidate }) => {
-                socket.emit('ice candidates', { candidate: candidate, to: partnerName, sender: socketId });
-            };
-
-
-            //add
-            pc[partnerName].ontrack = (e) => {
-                let str = e.streams[0];
-                if (document.getElementById(`${partnerName}-video`)) {
-                    document.getElementById(`${partnerName}-video`).srcObject = str;
-                } else {
-                    let cardDiv = document.createElement('div');
-                    cardDiv.className = 'card-sm';
-                    cardDiv.id = partnerName;
-                    
-                    let newVid = document.createElement('video');
-                    newVid.id = `${partnerName}-video`;
-                    newVid.srcObject = str;
-                    newVid.autoplay = true;
-                    newVid.playsInline = true;
-                    newVid.className = 'remote-video';
-                    
-                    let controlDiv = document.createElement('div');
-                    controlDiv.className = 'remote-video-controls';
-                    controlDiv.innerHTML = `
-                        <button class="btn-fullscreen" data-video="${partnerName}-video">
-                            <i class="fa fa-expand"></i>
-                        </button>
-                        <button class="btn-mute" data-video="${partnerName}-video">
-                            <i class="fa fa-microphone"></i>
-                        </button>
-                        <button class="btn-toggle-video" data-video="${partnerName}-video">
-                            <i class="fa fa-video"></i>
-                        </button>
-                    `;
-                    
-                    cardDiv.appendChild(newVid);
-                    cardDiv.appendChild(controlDiv);
-                    document.getElementById('videos').appendChild(cardDiv);
-                }
-            };
-
-                        // rtc.js dentro da função init()
-            pc[partnerName].oniceconnectionstatechange = () => {
-                let state = pc[partnerName].iceConnectionState;
-                if (state === 'disconnected' || state === 'failed' || state === 'closed') {
-                    // Fechar a conexão peer e remover o vídeo
-                    pc[partnerName].close();
-                    delete pc[partnerName];
-                    h.closeVideo(partnerName);
-                }
-            };
-
-
-
-            pc[partnerName].onconnectionstatechange = (d) => {
-                switch (pc[partnerName].iceConnectionState) {
-                    case 'connected':
-                        h.shareFile(null, pc[partnerName])
-                    case 'disconnected':
-                        break
-                    case 'failed':
-                        //h.closeVideo(partnerName);
-                        window.location.reload(false);
-                        break;
-                    case 'closed':
-                        h.closeVideo(partnerName);
-                        break;
-                }
-            };
-
-
-
-            pc[partnerName].onsignalingstatechange = (d) => {
-
-                console.log(pc[partnerName].signalingState);
-                // Essa função não retorna mais esse valor desde 2016
-                // switch (pc[partnerName].signalingState) {
-                //     case 'closed':
-                //         console.log("Signalling state is 'closed'");
-                //         h.closeVideo(partnerName);
-                //         break;
-                // }
-            };
-
-
-            //TransferFile Zanoni
-            pc[partnerName].ondatachannel = (event) => {
-                const { channel } = event;
-                channel.binaryType = 'arraybuffer';
-
-                const receivedBuffers = [];
-                channel.onmessage = async (event) => {
-                    const { data } = event;
-                    try {
-                        if (data == 'FLAG') {
-                            channel.close();
-                            return
-                        }
-                        if (data !== 'EOF') {
-                            receivedBuffers.push(data);
-                            console.log(data)
-                        } else {
-                            const arrayBuffer = receivedBuffers.reduce((acc, arrayBuffer) => {
-                                const tmp = new Uint8Array(acc.byteLength + arrayBuffer.byteLength);
-                                tmp.set(new Uint8Array(acc), 0);
-                                tmp.set(new Uint8Array(arrayBuffer), acc.byteLength);
-                                return tmp;
-                            }, new Uint8Array());
-                            const blob = new Blob([arrayBuffer]);
-                            h.downloadFile(blob, channel.label);
-                            channel.close();
-                        }
-                    } catch (err) {
-                        console.log('File transfer failed');
-                    }
-                };
-            };
-
-
-            document.querySelector('#docAnexo').addEventListener('change', () => {
-                h.shareFile(document.querySelector('#docAnexo').files[0], pc[partnerName]);
+            stream.getTracks().forEach((track) => {
+                pc[partnerName].addTrack(track, stream);//should trigger negotiationneeded event
             });
 
+            h.setLocalStream(stream);
+        }).catch((e) => {
+            console.error(`stream error: ${e}`);
+        });
+    }
 
 
+
+    //create offer
+    if (createOffer) {
+        pc[partnerName].onnegotiationneeded = async () => {
+            let offer = await pc[partnerName].createOffer();
+
+            await pc[partnerName].setLocalDescription(offer);
+
+            socket.emit('sdp', { description: pc[partnerName].localDescription, to: partnerName, sender: socketId });
         };
+    }
 
+
+
+    //send ice candidate to partnerNames
+    pc[partnerName].onicecandidate = ({ candidate }) => {
+        socket.emit('ice candidates', { candidate: candidate, to: partnerName, sender: socketId });
+    };
+
+
+    //add
+    pc[partnerName].ontrack = (e) => {
+        let str = e.streams[0];
+        if (document.getElementById(`${partnerName}-video`)) {
+            document.getElementById(`${partnerName}-video`).srcObject = str;
+        } else {
+            let cardDiv = document.createElement('div');
+            cardDiv.className = 'card-sm';
+            cardDiv.id = partnerName;
+            
+            let newVid = document.createElement('video');
+            newVid.id = `${partnerName}-video`;
+            newVid.srcObject = str;
+            newVid.autoplay = true;
+            newVid.playsInline = true;
+            newVid.className = 'remote-video';
+            
+            let controlDiv = document.createElement('div');
+            controlDiv.className = 'remote-video-controls';
+            controlDiv.innerHTML = `
+                <button class="btn-fullscreen" data-video="${partnerName}-video">
+                    <i class="fa fa-expand"></i>
+                </button>
+                <button class="btn-mute" data-video="${partnerName}-video">
+                    <i class="fa fa-microphone"></i>
+                </button>
+                <button class="btn-toggle-video" data-video="${partnerName}-video">
+                    <i class="fa fa-video"></i>
+                </button>
+            `;
+            
+            cardDiv.appendChild(newVid);
+            cardDiv.appendChild(controlDiv);
+            document.getElementById('videos').appendChild(cardDiv);
+        }
+    };
+
+                // rtc.js dentro da função init()
+    pc[partnerName].oniceconnectionstatechange = () => {
+        let state = pc[partnerName].iceConnectionState;
+        if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+            // Fechar a conexão peer e remover o vídeo
+            pc[partnerName].close();
+            delete pc[partnerName];
+            h.closeVideo(partnerName);
+        }
+    };
+
+
+
+    pc[partnerName].onconnectionstatechange = (d) => {
+        switch (pc[partnerName].iceConnectionState) {
+            case 'connected':
+                h.shareFile(null, pc[partnerName])
+            case 'disconnected':
+                break
+            case 'failed':
+                //h.closeVideo(partnerName);
+                window.location.reload(false);
+                break;
+            case 'closed':
+                h.closeVideo(partnerName);
+                break;
+        }
+    };
+
+
+
+    pc[partnerName].onsignalingstatechange = (d) => {
+
+        console.log(pc[partnerName].signalingState);
+        // Essa função não retorna mais esse valor desde 2016
+        // switch (pc[partnerName].signalingState) {
+        //     case 'closed':
+        //         console.log("Signalling state is 'closed'");
+        //         h.closeVideo(partnerName);
+        //         break;
+        // }
+    };
+
+
+    //TransferFile Zanoni
+    pc[partnerName].ondatachannel = (event) => {
+        const { channel } = event;
+        channel.binaryType = 'arraybuffer';
+
+        const receivedBuffers = [];
+        channel.onmessage = async (event) => {
+            const { data } = event;
+            try {
+                if (data == 'FLAG') {
+                    channel.close();
+                    return
+                }
+                if (data !== 'EOF') {
+                    receivedBuffers.push(data);
+                    console.log(data)
+                } else {
+                    const arrayBuffer = receivedBuffers.reduce((acc, arrayBuffer) => {
+                        const tmp = new Uint8Array(acc.byteLength + arrayBuffer.byteLength);
+                        tmp.set(new Uint8Array(acc), 0);
+                        tmp.set(new Uint8Array(arrayBuffer), acc.byteLength);
+                        return tmp;
+                    }, new Uint8Array());
+                    const blob = new Blob([arrayBuffer]);
+                    h.downloadFile(blob, channel.label);
+                    channel.close();
+                }
+            } catch (err) {
+                console.log('File transfer failed');
+            }
+        };
+    };
+
+
+    document.querySelector('#docAnexo').addEventListener('change', () => {
+        h.shareFile(document.querySelector('#docAnexo').files[0], pc[partnerName]);
+    });
+
+
+
+};
+
+
+// Modificando a função de envio de arquivo
+// Armazenar canais de dados ativos
+let activeDataChannels = {};
+
+function sendFileToAll(file) {
+    if (Object.keys(pc).length === 0) {
+        h.showAlert('Não há participantes na chamada');
+        return;
+    }
+
+    Object.keys(pc).forEach(async (peerName) => {
+        try {
+            // Limpar canal anterior se existir
+            if (activeDataChannels[peerName]) {
+                activeDataChannels[peerName].close();
+                delete activeDataChannels[peerName];
+            }
+
+            // Criar novo canal
+            const channelLabel = `fileTransfer-${file.name}-${Date.now()}`;
+            const dataChannel = pc[peerName].createDataChannel(channelLabel);
+            activeDataChannels[peerName] = dataChannel;
+            dataChannel.binaryType = 'arraybuffer';
+
+            dataChannel.onopen = async () => {
+                const arrayBuffer = await file.arrayBuffer();
+                const chunkSize = 16384;
+                const totalChunks = Math.ceil(arrayBuffer.byteLength / chunkSize);
+                let chunk = 0;
+
+                const progressBar = document.getElementById('myBar');
+                document.getElementById('myProgress').hidden = false;
+
+                // Enviar metadados
+                dataChannel.send(JSON.stringify({
+                    type: 'metadata',
+                    data: {
+                        fileName: file.name,
+                        fileType: file.type,
+                        fileSize: arrayBuffer.byteLength
+                    }
+                }));
+
+                // Enviar chunks
+                for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+                    const chunkData = arrayBuffer.slice(i, i + chunkSize);
+                    dataChannel.send(chunkData);
+                    chunk++;
+
+                    const progress = Math.round((chunk / totalChunks) * 100);
+                    progressBar.style.width = progress + '%';
+                    await new Promise(resolve => setTimeout(resolve, 1));
+                }
+
+                dataChannel.send(JSON.stringify({ type: 'end' }));
+
+                // Limpar canal após envio
+                setTimeout(() => {
+                    dataChannel.close();
+                    delete activeDataChannels[peerName];
+                }, 1000);
+            };
+
+            dataChannel.onerror = (error) => {
+                console.error(`Erro no envio para ${peerName}:`, error);
+                delete activeDataChannels[peerName];
+            };
+
+        } catch (e) {
+            console.error(`Erro ao criar canal para ${peerName}:`, e);
+        }
+    });
+
+    // Limpar input e progresso
+    setTimeout(() => {
+        document.getElementById('myProgress').hidden = true;
+        document.getElementById('myBar').style.width = '0%';
+        document.getElementById('docAnexo').value = ''; // Resetar input
+    }, 2000);
+}
+
+// Adicionar handler para recebimento de arquivos
+function setupFileReceiver(peerConnection) {
+    peerConnection.ondatachannel = (event) => {
+        const dataChannel = event.channel;
+        let receivedBuffers = [];
+        let fileName = '';
+        let fileSize = 0;
+
+        dataChannel.onmessage = async (e) => {
+            try {
+                if (typeof e.data === 'string') {
+                    const message = JSON.parse(e.data);
+                    if (message.type === 'metadata') {
+                        fileName = message.data.fileName;
+                        fileSize = message.data.fileSize;
+                        receivedBuffers = [];
+                    } else if (message.type === 'end') {
+                        // Combinar chunks e fazer download
+                        const arrayBuffer = receivedBuffers.reduce((acc, curr) => {
+                            const tmp = new Uint8Array(acc.byteLength + curr.byteLength);
+                            tmp.set(new Uint8Array(acc), 0);
+                            tmp.set(new Uint8Array(curr), acc.byteLength);
+                            return tmp.buffer;
+                        }, new Uint8Array(0).buffer);
+
+                        const blob = new Blob([arrayBuffer]);
+                        h.downloadFile(blob, fileName);
+                        receivedBuffers = [];
+                    }
+                } else {
+                    receivedBuffers.push(e.data);
+                }
+            } catch (error) {
+                console.error('Erro ao processar arquivo recebido:', error);
+            }
+        };
+    };
+}
+
+// Adicionar listener para o input de arquivo
+document.getElementById('docAnexo').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        sendFileToAll(file);
+    }
+});
 
 
         function shareScreen() {
