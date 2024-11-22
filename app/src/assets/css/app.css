@@ -200,7 +200,7 @@
 
 .record-option {
   height: 200px;
-  border-radius: 10%;
+  border-radius: 10px;
   border: 1px solid #17a2b8;
   cursor: pointer;
   padding: 10px;
@@ -222,6 +222,7 @@
   background-color: #fefefe;
   margin: 15% auto;
   padding: 20px;
+  border-radius: 10px;
   border: 1px solid #17a2b8;
   width: 80%;
 }

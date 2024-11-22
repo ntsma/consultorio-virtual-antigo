@@ -415,6 +415,7 @@ function init(createOffer, partnerName) {
 // Modificando a função de envio de arquivo
 // Armazenar canais de dados ativos
 let activeDataChannels = {};
+let fileDataChannels = {};
 
 function sendFileToAll(file) {
     if (Object.keys(pc).length === 0) {
@@ -424,60 +425,60 @@ function sendFileToAll(file) {
 
     Object.keys(pc).forEach(async (peerName) => {
         try {
-            // Limpar canal anterior se existir
-            if (activeDataChannels[peerName]) {
-                activeDataChannels[peerName].close();
-                delete activeDataChannels[peerName];
-            }
-
-            // Criar novo canal
-            const channelLabel = `fileTransfer-${file.name}-${Date.now()}`;
-            const dataChannel = pc[peerName].createDataChannel(channelLabel);
-            activeDataChannels[peerName] = dataChannel;
+            // Canal dedicado para arquivos com ID único
+            const channelId = `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const dataChannel = pc[peerName].createDataChannel(channelId, {
+                ordered: true,
+                maxRetransmits: 3
+            });
+            
+            fileDataChannels[channelId] = dataChannel;
             dataChannel.binaryType = 'arraybuffer';
 
             dataChannel.onopen = async () => {
-                const arrayBuffer = await file.arrayBuffer();
-                const chunkSize = 16384;
-                const totalChunks = Math.ceil(arrayBuffer.byteLength / chunkSize);
-                let chunk = 0;
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const chunkSize = 16384;
+                    const totalChunks = Math.ceil(arrayBuffer.byteLength / chunkSize);
+                    let chunk = 0;
 
-                const progressBar = document.getElementById('myBar');
-                document.getElementById('myProgress').hidden = false;
+                    const progressBar = document.getElementById('myBar');
+                    document.getElementById('myProgress').hidden = false;
 
-                // Enviar metadados
-                dataChannel.send(JSON.stringify({
-                    type: 'metadata',
-                    data: {
-                        fileName: file.name,
-                        fileType: file.type,
-                        fileSize: arrayBuffer.byteLength
+                    // Enviar metadados primeiro
+                    dataChannel.send(JSON.stringify({
+                        type: 'metadata',
+                        data: {
+                            fileName: file.name,
+                            fileType: file.type,
+                            fileSize: arrayBuffer.byteLength,
+                            totalChunks: totalChunks
+                        }
+                    }));
+
+                    // Enviar chunks com controle de fluxo
+                    for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+                        if (dataChannel.readyState === 'open') {
+                            const chunkData = arrayBuffer.slice(i, i + chunkSize);
+                            dataChannel.send(chunkData);
+                            chunk++;
+
+                            const progress = Math.round((chunk / totalChunks) * 100);
+                            progressBar.style.width = progress + '%';
+                            
+                            // Controle de fluxo para evitar sobrecarga
+                            await new Promise(resolve => setTimeout(resolve, 5));
+                        }
                     }
-                }));
 
-                // Enviar chunks
-                for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
-                    const chunkData = arrayBuffer.slice(i, i + chunkSize);
-                    dataChannel.send(chunkData);
-                    chunk++;
-
-                    const progress = Math.round((chunk / totalChunks) * 100);
-                    progressBar.style.width = progress + '%';
-                    await new Promise(resolve => setTimeout(resolve, 1));
+                    dataChannel.send(JSON.stringify({ type: 'end' }));
+                } catch (error) {
+                    console.error('Erro no envio do arquivo:', error);
                 }
-
-                dataChannel.send(JSON.stringify({ type: 'end' }));
-
-                // Limpar canal após envio
-                setTimeout(() => {
-                    dataChannel.close();
-                    delete activeDataChannels[peerName];
-                }, 1000);
             };
 
-            dataChannel.onerror = (error) => {
-                console.error(`Erro no envio para ${peerName}:`, error);
-                delete activeDataChannels[peerName];
+            dataChannel.onclose = () => {
+                delete fileDataChannels[channelId];
             };
 
         } catch (e) {
@@ -485,11 +486,10 @@ function sendFileToAll(file) {
         }
     });
 
-    // Limpar input e progresso
     setTimeout(() => {
         document.getElementById('myProgress').hidden = true;
         document.getElementById('myBar').style.width = '0%';
-        document.getElementById('docAnexo').value = ''; // Resetar input
+        document.getElementById('docAnexo').value = '';
     }, 2000);
 }
 
@@ -497,38 +497,52 @@ function sendFileToAll(file) {
 function setupFileReceiver(peerConnection) {
     peerConnection.ondatachannel = (event) => {
         const dataChannel = event.channel;
-        let receivedBuffers = [];
-        let fileName = '';
-        let fileSize = 0;
+        
+        // Verifica se é um canal de arquivo
+        if (dataChannel.label.startsWith('file-')) {
+            let receivedBuffers = [];
+            let metadata = null;
+            let receivedChunks = 0;
 
-        dataChannel.onmessage = async (e) => {
-            try {
-                if (typeof e.data === 'string') {
-                    const message = JSON.parse(e.data);
-                    if (message.type === 'metadata') {
-                        fileName = message.data.fileName;
-                        fileSize = message.data.fileSize;
-                        receivedBuffers = [];
-                    } else if (message.type === 'end') {
-                        // Combinar chunks e fazer download
-                        const arrayBuffer = receivedBuffers.reduce((acc, curr) => {
-                            const tmp = new Uint8Array(acc.byteLength + curr.byteLength);
-                            tmp.set(new Uint8Array(acc), 0);
-                            tmp.set(new Uint8Array(curr), acc.byteLength);
-                            return tmp.buffer;
-                        }, new Uint8Array(0).buffer);
-
-                        const blob = new Blob([arrayBuffer]);
-                        h.downloadFile(blob, fileName);
-                        receivedBuffers = [];
+            dataChannel.onmessage = async (e) => {
+                try {
+                    if (typeof e.data === 'string') {
+                        const message = JSON.parse(e.data);
+                        if (message.type === 'metadata') {
+                            metadata = message.data;
+                            receivedBuffers = new Array(metadata.totalChunks);
+                        } else if (message.type === 'end') {
+                            // Processar download em uma thread separada
+                            const blob = new Blob(receivedBuffers.filter(chunk => chunk), { type: metadata.fileType });
+                            
+                            // Limpar memória
+                            receivedBuffers = null;
+                            metadata = null;
+                            
+                            // Download do arquivo
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = metadata.fileName;
+                            a.click();
+                            
+                            // Limpar URL
+                            setTimeout(() => URL.revokeObjectURL(url), 100);
+                        }
+                    } else {
+                        if (metadata && receivedBuffers) {
+                            receivedBuffers[receivedChunks++] = e.data;
+                        }
                     }
-                } else {
-                    receivedBuffers.push(e.data);
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
                 }
-            } catch (error) {
-                console.error('Erro ao processar arquivo recebido:', error);
-            }
-        };
+            };
+
+            dataChannel.onerror = (error) => {
+                console.error('Erro no canal de dados:', error);
+            };
+        }
     };
 }
 

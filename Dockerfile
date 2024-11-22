@@ -10,11 +10,17 @@ COPY app/package*.json ./
 # Instalar as dependências da aplicação
 RUN npm install
 
-# Copiar todos os arquivos da aplicação para o diretório de trabalho no container
+# Copiar todos os arquivos da aplicação para o diretório de trabalho
 COPY app/ .
 
-# Expor a porta 3000 para acesso à aplicação
-EXPOSE 3000
+# Ajustar as permissões
+RUN chown -R node:node /home/app
 
-# Rodar o script init.sh ou iniciar a aplicação diretamente
-CMD ["sh", "/home/init.sh"]
+# Expor as portas necessárias
+EXPOSE 3000 3001
+
+# Definir o usuário para executar o container
+USER node
+
+# Executar a aplicação diretamente
+CMD ["npm", "start"]
