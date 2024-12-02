@@ -292,7 +292,17 @@ function init(createOffer, partnerName) {
     pc[partnerName].ontrack = (e) => {
         let str = e.streams[0];
         if (document.getElementById(`${partnerName}-video`)) {
-            document.getElementById(`${partnerName}-video`).srcObject = str;
+            let videoElem = document.getElementById(`${partnerName}-video`);
+            videoElem.srcObject = str;
+            
+            // Força o uso do alto-falante
+            videoElem.setSinkId && videoElem.setSinkId('speaker').catch(error => {
+                console.warn('Erro ao definir dispositivo de saída:', error);
+            });
+            
+            // Garante que o áudio saia pelo alto-falante em iOS
+            videoElem.playsInline = true;
+            videoElem.setAttribute('playsinline', '');
         } else {
             let cardDiv = document.createElement('div');
             cardDiv.className = 'card-sm';

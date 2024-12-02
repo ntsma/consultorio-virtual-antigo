@@ -86,18 +86,33 @@ export default {
         if (this.userMediaAvailable()) {
             return navigator.mediaDevices.getUserMedia({
                 video: {
-                    width: {ideal: 720 },
-                    height: {ideal: 360 },
+                    width: {ideal: 720},
+                    height: {ideal: 360},
                     facingMode: "user"
                 },
                 audio: {
                     echoCancellation: true,
-                    noiseSuppression: true
+                    noiseSuppression: true,
+                    // Forçar saída de áudio pelo alto-falante
+                    sampleRate: 44100,
+                    channelCount: 2,
+                    volume: 1.0
                 }
+            }).then(stream => {
+                // Força o uso do alto-falante
+                let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let source = audioCtx.createMediaStreamSource(stream);
+                let dest = audioCtx.createMediaStreamDestination();
+                source.connect(dest);
+                
+                // Ativa o modo alto-falante em dispositivos móveis
+                if (typeof document.createElement('audio').setSinkId === 'function') {
+                    audioCtx.setSinkId('speaker');
+                }
+                
+                return stream;
             });
-        }
-
-        else {
+        } else {
             throw new Error('User media not available');
         }
     },
