@@ -176,7 +176,7 @@ export default {
     addChat(data, senderType) {
         let chatMsgDiv = document.querySelector('#chat-messages');
         let contentAlign = 'justify-content-end';
-        let senderName = 'You';
+        let senderName = 'Você';
         let msgBg = 'bg-white';
 
         if (senderType === 'remote') {

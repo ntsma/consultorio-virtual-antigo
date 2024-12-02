@@ -867,8 +867,7 @@ body {
 .remote-video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
+    object-fit: contain; /* Mudança principal aqui */
 }
 
 .remote-video-controls {
@@ -955,3 +954,18 @@ body {
     object-fit: contain;
 }
 
+/* Ajustes responsivos para mobile */
+@media (max-width: 767px) {
+  .card-sm {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    max-height: 50vh; /* Limita altura em telas pequenas */
+  }
+  
+  .remote-video {
+    max-height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+}
