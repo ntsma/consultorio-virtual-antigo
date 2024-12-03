@@ -45,8 +45,21 @@ copyRoomLink.addEventListener('click', (e) => {
 });
 
 window.addEventListener('load', () => {
-    const room = h.getQString(location.href, 'room');
+    const room = window.location.pathname.substring(1);
     const username = sessionStorage.getItem('username');
+
+    // Verifica se está na rota raiz
+    if (room === '') {
+        document.querySelector('#room-create').attributes.removeNamedItem('hidden');
+        document.querySelector('#login').attributes.removeNamedItem('hidden');
+        return;
+    }
+
+    // Verifica o formato da sala
+    if (room && !room.match(/^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$/)) {
+        location.href = '/';
+        return;
+    }
 
     if (!h.compatibilityTest()) location.pathname = 'error';
 

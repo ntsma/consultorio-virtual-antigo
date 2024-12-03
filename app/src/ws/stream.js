@@ -1,4 +1,4 @@
-const stream = (io, socket) => {
+module.exports = (socket) => {
     socket.on('subscribe', (data) => {
         // Junte-se à sala
         socket.join(data.room);
@@ -9,7 +9,7 @@ const stream = (io, socket) => {
         const roomSize = room ? Object.keys(room.sockets).length : 0;
 
         // Emite o status da sala para todos os participantes
-        io.to(data.room).emit('room status', {
+        socket.to(data.room).emit('room status', {
             count: roomSize
         });
 
@@ -24,11 +24,17 @@ const stream = (io, socket) => {
     });
 
     socket.on('sdp', (data) => {
-        socket.to(data.to).emit('sdp', { description: data.description, sender: data.sender });
+        socket.to(data.to).emit('sdp', { 
+            description: data.description, 
+            sender: data.sender 
+        });
     });
 
     socket.on('ice candidates', (data) => {
-        socket.to(data.to).emit('ice candidates', { candidate: data.candidate, sender: data.sender });
+        socket.to(data.to).emit('ice candidates', {
+            candidate: data.candidate, 
+            sender: data.sender 
+        });
     });
 
     socket.on('chat', (data) => {
@@ -41,8 +47,8 @@ const stream = (io, socket) => {
     socket.on('disconnect', () => {
         const rooms = Object.keys(socket.rooms);
         rooms.forEach(room => {
-            const remainingClients = socket.adapter.rooms.get(room);
-            const count = remainingClients ? remainingClients.size - 1 : 0;
+            const remainingClients = socket.adapter.rooms[room];
+            const count = remainingClients ? Object.keys(remainingClients.sockets).length - 1 : 0;
             
             socket.to(room).emit('room status', {
                 count: count
@@ -51,5 +57,3 @@ const stream = (io, socket) => {
         });
     });
 };
-
-module.exports = stream;

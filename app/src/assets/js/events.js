@@ -53,33 +53,32 @@ window.addEventListener('load', () => {
     //When the 'Create room" is button is clicked
     document.getElementById('create-room').addEventListener('click', (e) => {
         e.preventDefault();
-
-        //let roomName = document.querySelector('#room-name').value;
-        let roomName = 'nomeMed'
         let yourName = document.querySelector('#your-name').value;
 
-        if (roomName && yourName) {
-            //remove error message, if any
+        if (yourName) {
             document.querySelector('#err-msg').innerHTML = "";
 
-            //save the user's name in sessionStorage
+            // Função para gerar código da sala
+            const generateRoomCode = () => {
+                const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                const segments = [3, 3, 4];
+                let code = '';
+
+                segments.forEach((length, index) => {
+                    for (let i = 0; i < length; i++) {
+                        code += chars[Math.floor(Math.random() * chars.length)];
+                    }
+                    if (index < segments.length - 1) code += '-';
+                });
+
+                return code;
+            };
+
             sessionStorage.setItem('username', yourName);
-
-
-            //create room link
-            let roomLink = `${location.origin}?room=${roomName.trim().replace(' ', '_')}_${helpers.generateRandomString()}`;
-
-            //show message with link to room
-            //document.querySelector( '#room-created' ).innerHTML = `Sala criada com sucesso. Aperte <a href='${ roomLink }'>aqui</a> para entrar na consulta.`;
-            window.location.href = roomLink;
-
-            //empty the values
-            document.querySelector('#room-name').value = '';
-            document.querySelector('#your-name').value = '';
-        }
-
-        else {
-            document.querySelector('#err-msg').innerHTML = "Todos campos são necessários";
+            let roomCode = generateRoomCode();
+            window.location.href = `/${roomCode}`;
+        } else {
+            document.querySelector('#err-msg').innerHTML = "Por favor, insira seu nome";
         }
     });
 
