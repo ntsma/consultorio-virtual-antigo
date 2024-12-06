@@ -9,3 +9,9 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=development
+    networks:
+       - rede_homologacao_126
+  
+  networks:
+    rede_homologacao_126:
+      external: true
