@@ -240,6 +240,19 @@ function init(createOffer, partnerName) {
     pc[partnerName] = new RTCPeerConnection(h.getIceServer());
     setupFileReceiver(pc[partnerName]);
     
+    // Forçar reprodução no iOS
+    function forcePlayVideo(video) {
+        const promise = video.play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                video.muted = true;
+                video.play().then(() => {
+                    video.muted = false;
+                });
+            });
+        }
+    }
+
     if (screen && screen.getTracks().length) {
         screen.getTracks().forEach((track) => {
             pc[partnerName].addTrack(track, screen);//should trigger negotiationneeded event
@@ -303,6 +316,13 @@ function init(createOffer, partnerName) {
             // Garante que o áudio saia pelo alto-falante em iOS
             videoElem.playsInline = true;
             videoElem.setAttribute('playsinline', '');
+            
+            // Configurações específicas para iOS
+            videoElem.setAttribute('webkit-playsinline', '');
+            videoElem.setAttribute('x-webkit-airplay', 'allow');
+            
+            // Forçar reprodução
+            forcePlayVideo(videoElem);
         } else {
             let cardDiv = document.createElement('div');
             cardDiv.className = 'card-sm';
@@ -831,3 +851,45 @@ document.getElementById('docAnexo').addEventListener('change', (e) => {
     // Inicia a verificação do estado da sala
     startRoomStateCheck();
 });
+
+function connectNewUser(userId, stream) {
+    const connection = new RTCPeerConnection(config);
+    
+    connection.oniceconnectionstatechange = () => {
+        if (connection.iceConnectionState === 'failed' || 
+            connection.iceConnectionState === 'disconnected') {
+            if (isIOS()) {
+                console.log('Reconectando no iOS...');
+                retryConnection(userId, stream);
+            }
+        }
+    };
+
+    if (isIOS()) {
+        connection.onconnectionstatechange = () => {
+            if (connection.connectionState === 'connected') {
+                updateParticipantCount();
+            }
+        };
+    }
+    
+    return connection;
+}
+
+function retryConnection(userId, stream, attempts = 0) {
+    if (attempts > 3) return;
+    
+    setTimeout(() => {
+        const newConnection = connectNewUser(userId, stream);
+        connections[userId] = newConnection;
+    }, 2000 * (attempts + 1));
+}
+
+function updateParticipantCount() {
+    socket.emit('get-participants', ROOM_ID, (count) => {
+        const participantsDiv = document.getElementById('participants-count');
+        if (participantsDiv) {
+            participantsDiv.textContent = `Participantes: ${count}`;
+        }
+    });
+}

@@ -7,6 +7,8 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -250,8 +252,15 @@
     <!-- ************************ Begin frame de videochamada ************************ -->
     <div class="container-fluid room-comm" hidden>
         <!-- begin video local-->
-        <video class="local-video mirror-mode" id='local' volume='0' autoplay muted 
-               playsinline webkit-playsinline></video>
+        <video class="local-video mirror-mode" 
+            id='local' 
+            volume='0' 
+            autoplay 
+            muted 
+            playsinline 
+            webkit-playsinline
+            x-webkit-airplay="allow">
+        </video>
         <!-- end video local-->
 
         <div class="row">
@@ -292,6 +301,7 @@
                     <a href="#" id="copy-room-link">clique aqui</a> 
                     e envie para os outros participantes
                 </div>
+                <div id="participants-count"></div>
             </div>
             <!-- end big video-->
 

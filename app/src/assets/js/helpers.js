@@ -93,26 +93,14 @@ export default {
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
-                    // Forçar saída de áudio pelo alto-falante
-                    sampleRate: 44100,
-                    channelCount: 2,
-                    volume: 1.0
+                    // Configurações otimizadas para iOS
+                    sampleRate: 48000,
+                    channelCount: 1, // Mono para melhor compatibilidade
+                    autoGainControl: true
                 }
-            }).then(stream => {
-                // Força o uso do alto-falante
-                let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                let source = audioCtx.createMediaStreamSource(stream);
-                let dest = audioCtx.createMediaStreamDestination();
-                source.connect(dest);
-                
-                // Ativa o modo alto-falante em dispositivos móveis
-                if (typeof document.createElement('audio').setSinkId === 'function') {
-                    audioCtx.setSinkId('speaker');
-                }
-                
-                return stream;
             });
-        } else {
+        }
+        else {
             throw new Error('User media not available');
         }
     },
@@ -426,4 +414,16 @@ export default {
             };
         }
     }
+};
+
+const isIOS = () => {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+    ].includes(navigator.platform)
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 };

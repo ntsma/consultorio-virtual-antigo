@@ -222,5 +222,17 @@ document.addEventListener('click', (e) => {
     }
 });
 
+    // Inicializar áudio no iOS com interação do usuário
+    document.body.addEventListener('touchstart', function() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // Criar e iniciar um oscillator silencioso
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 0;
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.001);
+    }, false);
     
 });
