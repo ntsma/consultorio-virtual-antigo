@@ -17,7 +17,7 @@ COPY app/ .
 RUN chown -R node:node /home/app
 
 # Expor as portas necessárias
-EXPOSE 3000 3001
+EXPOSE 3010 3011
 
 # Definir o usuário para executar o container
 USER node

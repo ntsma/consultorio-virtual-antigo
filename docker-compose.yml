@@ -2,10 +2,11 @@ services:
   web:
     build: .
     user: "node:node"
+    container_name: consultorio-homolog
     volumes:
       - ./app:/home/app
     ports:
-      - "3000:3000"
-      - "3001:3001"
+      - "3010:3010"
+      - "3011:3011"
     environment:
       - NODE_ENV=development
